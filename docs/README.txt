@@ -1,0 +1,1 @@
+guardar diagramas, alguna documentación
