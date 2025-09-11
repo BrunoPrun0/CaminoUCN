@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Demo Login UCN</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    select, input { margin: 5px 0; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Login (CUENTAS DE PRUEBA)</h2>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Correo institucional" value="juan@example.com"><br>
+    <input type="password" id="password" placeholder="Contraseña totoralillo" value="1234"><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <div id="studentInfo" style="display:none;">
+    <h3>Carreras:</h3>
+    <select id="careerSelect"></select>
+    <button id="loadData">Ver Malla y Avance</button>
+
+    <h3>Malla:</h3>
+    <pre id="mallaOutput"></pre>
+
+    <h3>Avance:</h3>
+    <pre id="avanceOutput"></pre>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const studentInfo = document.getElementById("studentInfo");
+    const careerSelect = document.getElementById("careerSelect");
+    const loadDataBtn = document.getElementById("loadData");
+    const mallaOutput = document.getElementById("mallaOutput");
+    const avanceOutput = document.getElementById("avanceOutput");
+
+    let studentData;
+
+    // LOGIN
+    loginForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await fetch(`https://puclaro.ucn.cl/eross/avance/login.php?email=${email}&password=${password}`);
+        const data = await res.json();
+
+        if (data.error) {
+          alert("Error: " + data.error);
+          return;
+        }
+
+        studentData = data;
+        loginForm.style.display = "none";
+        studentInfo.style.display = "block";
+
+        // Mostrar carreras
+        careerSelect.innerHTML = "";
+        data.carreras.forEach(c => {
+          const option = document.createElement("option");
+          option.value = `${c.codigo}-${c.catalogo}`;
+          option.textContent = `${c.nombre} (${c.codigo})`;
+          careerSelect.appendChild(option);
+        });
+
+      } catch(err) {
+        console.error(err);
+        alert("Error al conectar con la API.");
+      }
+    });
+
+    // CARGAR MALLA Y AVANCE
+    loadDataBtn.addEventListener("click", async () => {
+      const selected = careerSelect.value;
+      const [codCarrera, catalogo] = selected.split("-");
+
+      // Malla
+      try {
+        const resMalla = await fetch(`https://losvilos.ucn.cl/hawaii/api/mallas?${codCarrera}-${catalogo}`, {
+          headers: {"X-HAWAII-AUTH": "jf400fejof13f"}
+        });
+        const malla = await resMalla.json();
+        mallaOutput.textContent = JSON.stringify(malla, null, 2);
+      } catch(err) {
+        console.error(err);
+        mallaOutput.textContent = "Error al obtener la malla";
+      }
+
+      // Avance
+      try {
+        const resAvance = await fetch(`https://puclaro.ucn.cl/eross/avance/avance.php?rut=${studentData.rut}&codcarrera=${codCarrera}`);
+        const avance = await resAvance.json();
+        avanceOutput.textContent = JSON.stringify(avance, null, 2);
+      } catch(err) {
+        console.error(err);
+        avanceOutput.textContent = "Error al obtener el avance";
+      }
+    });
+  </script>
+</body>
+</html>
