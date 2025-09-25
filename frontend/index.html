@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Demo Login UCN</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    select, input { margin: 5px 0; }
-    pre { background: #f4f4f4; padding: 10px; }
-  </style>
-</head>
-<body>
-  <h2>Login (CUENTAS DE PRUEBA)</h2>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <h2>Login (CUENTAS DE PRUEBA)</h2>
   <form id="loginForm">
     <input type="email" id="email" placeholder="Correo institucional" value="juan@example.com"><br>
     <input type="password" id="password" placeholder="Contraseña totoralillo" value="1234"><br>
@@ -28,7 +28,6 @@
     <h3>Avance:</h3>
     <pre id="avanceOutput"></pre>
   </div>
-
   <script>
     const loginForm = document.getElementById("loginForm");
     const studentInfo = document.getElementById("studentInfo");
@@ -48,7 +47,7 @@
       try {
         const res = await fetch(`https://puclaro.ucn.cl/eross/avance/login.php?email=${email}&password=${password}`);
         const data = await res.json();
-
+        console.log(data)
         if (data.error) {
           alert("Error: " + data.error);
           return;
@@ -90,7 +89,7 @@
         mallaOutput.textContent = "Error al obtener la malla";
       }
 
-      // Avance
+      //Avance
       try {
         const resAvance = await fetch(`https://puclaro.ucn.cl/eross/avance/avance.php?rut=${studentData.rut}&codcarrera=${codCarrera}`);
         const avance = await resAvance.json();
@@ -101,5 +100,7 @@
       }
     });
   </script>
-</body>
+
+  </body>
+  
 </html>
