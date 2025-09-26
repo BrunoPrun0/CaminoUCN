@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model Student {
+  id            Int         @id @default(autoincrement())
+  apiStudentId  String      @unique
+  name          String?
+  email         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  projections   Projection[]  // ← Campo inverso agregado
+
+  @@map("students")
+}
+
+model ProjectionCourse {
+  id            Int      @id @default(autoincrement())
+  projectionId  Int
+  courseApiId   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  projection    Projection @relation(fields: [projectionId], references: [id], onDelete: Cascade)
+
+  @@map("projection_courses")
+}
+
+model Projection {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  name        String?  // Opcional
+  isFavorite  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courses     ProjectionCourse[]
+
+  @@map("projections")
+}
+
