@@ -5,10 +5,7 @@ export class ApiExternaService {
 
     
    async getProgreso(codCarrera: string, catalogo: string, rut: string) {
-        console.log('no error aca');
-        console.log(codCarrera);
-        console.log(catalogo);
-        console.log(rut);
+       
         try {
             const urlMalla = `https://losvilos.ucn.cl/hawaii/api/mallas?${codCarrera}-${catalogo}`;
             const urlAvance = `https://puclaro.ucn.cl/eross/avance/avance.php?rut=${rut}&codcarrera=${codCarrera}`;
@@ -18,20 +15,20 @@ export class ApiExternaService {
                 headers,
                 redirect: 'follow'
             });
-            console.log('Respuesta de malla:', resMalla.status);
+      
             const mallaData = await resMalla.json();
-            console.log('Datos de malla:', mallaData);
+ 
             if (mallaData.error){
                 throw new BadRequestException('Error '+ mallaData.error);
                 
             }
-            console.log(' no error aca');
+
             const resAvance = await fetch(urlAvance, {
                 method: 'GET',
                 redirect: 'follow'
             })
             const avanceData = await resAvance.json();
-            console.log(' no error aca');
+           
             if(avanceData.error){
                 throw new BadRequestException('Error '+ mallaData.error);
             }
@@ -46,7 +43,7 @@ export class ApiExternaService {
                 estado,
             };
          });
-            console.log(' no error aca');
+            
         return {
             rut,
             carrera: codCarrera,

@@ -7,6 +7,9 @@ function Home() {
   const { logout, usuario } = useAuth();
   const navigate = useNavigate();
   const [progreso, setProgreso] = useState<Asignatura[]>([]);
+  const [asignaturasPorSemestre, setAsignaturasPorSemestre] = useState<Record<number, Asignatura[]>>({});
+  const [carreraSeleccionada, setCarreraSeleccionada] = useState<{ codigo: string; nombre: string; catalogo: string } | null>(null);
+
 
   const [loading, setLoading] = useState(false);
   const [paginaActual, setPaginaActual] = useState<'inicio' | 'malla' | 'proyecciones' | 'perfil'>('inicio');
@@ -15,7 +18,10 @@ function Home() {
   asignatura: string;
   creditos: number;
   estado: string;
+  nivel: number;
+  prereq: string;
 };
+
 
 
 
@@ -26,14 +32,24 @@ function Home() {
   };
 
   useEffect(() => {
-  if (paginaActual === 'malla' && usuario) {
-    
-  const carrera = usuario.carreras[0]; // o la que el usuario seleccione
+  if (paginaActual === 'malla' && usuario && carreraSeleccionada) {
     setLoading(true);
-    
-    obtenerMalla(carrera.codigo, carrera.catalogo, usuario.rut)
+
+    obtenerMalla(carreraSeleccionada.codigo, carreraSeleccionada.catalogo, usuario.rut)
       .then(data => {
         setProgreso(data.progreso);
+
+        const agrupadas = data.progreso.reduce(
+          (acc: Record<number, Asignatura[]>, asig: Asignatura) => {
+            const nivel = asig.nivel;
+            if (!acc[nivel]) acc[nivel] = [];
+            acc[nivel].push(asig);
+            return acc;
+          },
+          {} as Record<number, Asignatura[]>
+        );
+
+        setAsignaturasPorSemestre(agrupadas);
         setLoading(false);
       })
       .catch(err => {
@@ -41,9 +57,14 @@ function Home() {
         setLoading(false);
       });
   }
-}, [paginaActual, usuario]);
+}, [paginaActual, usuario, carreraSeleccionada]);
 
 
+useEffect(() => {
+  if (paginaActual === 'malla' && usuario && usuario.carreras.length === 1 && !carreraSeleccionada) {
+    setCarreraSeleccionada(usuario.carreras[0]);
+  }
+}, [paginaActual, usuario, carreraSeleccionada]);
 
 
 
@@ -115,43 +136,70 @@ function Home() {
           )}
 
           {/* Página de Malla */}
-          {paginaActual === 'malla' && (
-            <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Malla</h1>
-          <p className="text-gray-600 mb-6">Aquí podrás ver y gestionar tu malla curricular.</p>
+          
 
-    {loading ? (
+        {paginaActual === 'malla' && (
+  <div>
+    <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Malla</h1>
+    <p className="text-gray-600 mb-6">Aquí podrás ver y gestionar tu malla curricular.</p>
+
+    {usuario != null && usuario.carreras.length > 1 && (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Selecciona una carrera:</label>
+        <select
+          className="w-full border border-gray-300 rounded px-3 py-2"
+          value={carreraSeleccionada?.codigo || ''}
+          onChange={(e) => {
+            const seleccionada = usuario.carreras.find(c => c.codigo === e.target.value);
+            setCarreraSeleccionada(seleccionada || null);
+          }}
+        >
+          <option value="">-- Selecciona --</option>
+          {usuario.carreras.map((carrera) => (
+            <option key={carrera.codigo} value={carrera.codigo}>
+              {carrera.nombre} ({carrera.catalogo})
+            </option>
+          ))}
+        </select>
+      </div>
+    )}
+
+    {/* 👇 Este bloque debe estar completamente encerrado */}
+    {!carreraSeleccionada ? (
+      <p className="text-gray-500">Selecciona una carrera para ver su malla curricular.</p>
+    ) : loading ? (
       <p className="text-gray-500">Cargando malla...</p>
     ) : (
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2">Código</th>
-            <th className="p-2">Asignatura</th>
-            <th className="p-2">Créditos</th>
-            <th className="p-2">Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {progreso.map((asig) => (
-            <tr key={asig.codigo} className="border-b">
-              <td className="p-2">{asig.codigo}</td>
-              <td className="p-2">{asig.asignatura}</td>
-              <td className="p-2">{asig.creditos}</td>
-              <td className={`p-2 font-semibold ${
-                asig.estado === 'APROBADO' ? 'text-green-600' :
-                asig.estado === 'REPROBADO' ? 'text-red-600' :
-                'text-gray-500'
-              }`}>
-                {asig.estado}
-              </td>
-            </tr>
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-5 gap-4 mt-6 min-w-[1000px]">
+          {Object.entries(asignaturasPorSemestre).map(([nivel, asignaturas]) => (
+            <div key={nivel} className="bg-white shadow-md rounded p-4">
+              <h3 className="text-lg font-bold text-blue-700 mb-2">Semestre {nivel}</h3>
+              <ul className="space-y-2">
+                {asignaturas.map((asig) => (
+                  <li key={asig.codigo} className="border p-2 rounded text-sm bg-gray-50 flex justify-between items-center">
+                    <div>
+                      <span className="font-semibold">{asig.codigo}</span>: {asig.asignatura} · <span className="text-gray-600">{asig.creditos} créditos</span>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      asig.estado === 'APROBADO' ? 'bg-green-200 text-green-800' :
+                      asig.estado === 'REPROBADO' ? 'bg-red-200 text-red-800' :
+                      'bg-gray-200 text-gray-800'
+                    }`}>
+                      {asig.estado}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
     )}
-  </div>
+  </div> // 👈 Este cierra el bloque de malla
 )}
+
+
 
 
           {/* Página de Proyecciones */}
