@@ -25,12 +25,13 @@ function Home() {
     navigate('/login');
   };
 
- useEffect(() => {
+  useEffect(() => {
   if (paginaActual === 'malla' && usuario) {
-    const { codigo, catalogo } = usuario.carreras;
-
+    
+  const carrera = usuario.carreras[0]; // o la que el usuario seleccione
     setLoading(true);
-    obtenerMalla(codigo, catalogo, usuario.rut)
+    
+    obtenerMalla(carrera.codigo, carrera.catalogo, usuario.rut)
       .then(data => {
         setProgreso(data.progreso);
         setLoading(false);

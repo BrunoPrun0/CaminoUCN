@@ -6,9 +6,11 @@ export class ApiExternaService {
     
    async getProgreso(codCarrera: string, catalogo: string, rut: string) {
         console.log('no error aca');
+        console.log(codCarrera);
+        console.log(catalogo);
+        console.log(rut);
         try {
             const urlMalla = `https://losvilos.ucn.cl/hawaii/api/mallas?${codCarrera}-${catalogo}`;
-
             const urlAvance = `https://puclaro.ucn.cl/eross/avance/avance.php?rut=${rut}&codcarrera=${codCarrera}`;
             const headers = {'X-HAWAII-AUTH': 'jf400fejof13f'};
             const resMalla = await fetch(urlMalla,{
