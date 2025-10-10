@@ -26,7 +26,7 @@ services:
     volumes:
       - ../backend:/app
     working_dir: /app
-    command: npm run start:dev
+    command: sh -c "npx prisma generate && npm run start:dev"
 
 volumes:
   postgres_data:

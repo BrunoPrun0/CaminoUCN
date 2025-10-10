@@ -11,4 +11,10 @@ export class ApiExternaController {
        return this.apiExterna.login(email,password);
         
     }
+    @Post('progreso')
+    async progresoUsuario(@Body()body: {codCarrera: string , catalogo: string, rut: string}){
+        console.log(' no error aca');
+        const {codCarrera, catalogo, rut} = body;
+        return this.apiExterna.getProgreso(codCarrera, catalogo, rut);
+    }
 }

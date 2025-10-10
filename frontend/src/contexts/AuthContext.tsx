@@ -2,7 +2,11 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 type Usuario = {
   rut: string;
-  carreras: string[];
+  carreras: {
+    codigo: string;
+    nombre: string;
+    catalogo: string;
+  };
 };
 
 type AuthContextType = {
