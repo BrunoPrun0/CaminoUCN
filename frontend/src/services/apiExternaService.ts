@@ -26,3 +26,4 @@ export async function obtenerMalla(codCarrera: string , catalogo: string, rut: s
   if (!res.ok) throw new Error('Obtencion fallida');
   return await res.json();
 }
+
