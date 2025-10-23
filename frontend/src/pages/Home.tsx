@@ -1,72 +1,25 @@
 // src/pages/Home.tsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useMalla } from '../contexts/MallaContext';
 import { useNavigate } from 'react-router-dom';
-import { obtenerMalla } from '../services/apiExternaService';
+import { proyeccionCorta } from '../utils/mallaUtils';
 function Home() {
   const { logout, usuario } = useAuth();
+  const { 
+    progreso, 
+    asignaturasPorSemestre, 
+    carreraSeleccionada, 
+    setCarreraSeleccionada, 
+    loading 
+  } = useMalla();
   const navigate = useNavigate();
-  const [progreso, setProgreso] = useState<Asignatura[]>([]);
-  const [asignaturasPorSemestre, setAsignaturasPorSemestre] = useState<Record<number, Asignatura[]>>({});
-  const [carreraSeleccionada, setCarreraSeleccionada] = useState<{ codigo: string; nombre: string; catalogo: string } | null>(null);
-
-
-  const [loading, setLoading] = useState(false);
   const [paginaActual, setPaginaActual] = useState<'inicio' | 'malla' | 'proyecciones' | 'perfil'>('inicio');
-  type Asignatura = {
-  codigo: string;
-  asignatura: string;
-  creditos: number;
-  estado: string;
-  nivel: number;
-  prereq: string;
-};
-
-
-
-
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-
-  useEffect(() => {
-  if (paginaActual === 'malla' && usuario && carreraSeleccionada) {
-    setLoading(true);
-
-    obtenerMalla(carreraSeleccionada.codigo, carreraSeleccionada.catalogo, usuario.rut)
-      .then(data => {
-        setProgreso(data.progreso);
-
-        const agrupadas = data.progreso.reduce(
-          (acc: Record<number, Asignatura[]>, asig: Asignatura) => {
-            const nivel = asig.nivel;
-            if (!acc[nivel]) acc[nivel] = [];
-            acc[nivel].push(asig);
-            return acc;
-          },
-          {} as Record<number, Asignatura[]>
-        );
-
-        setAsignaturasPorSemestre(agrupadas);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error al obtener progreso:', err);
-        setLoading(false);
-      });
-  }
-}, [paginaActual, usuario, carreraSeleccionada]);
-
-
-useEffect(() => {
-  if (paginaActual === 'malla' && usuario && usuario.carreras.length === 1 && !carreraSeleccionada) {
-    setCarreraSeleccionada(usuario.carreras[0]);
-  }
-}, [paginaActual, usuario, carreraSeleccionada]);
-
-
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -136,78 +89,106 @@ useEffect(() => {
           )}
 
           {/* Página de Malla */}
-          
+          {paginaActual === 'malla' && (
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Malla</h1>
+              <p className="text-gray-600 mb-6">Aquí podrás ver y gestionar tu malla curricular.</p>
 
-        {paginaActual === 'malla' && (
-  <div>
-    <h1 className="text-3xl font-bold text-gray-800 mb-4">Mi Malla</h1>
-    <p className="text-gray-600 mb-6">Aquí podrás ver y gestionar tu malla curricular.</p>
+              {usuario != null && usuario.carreras.length > 1 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Selecciona una carrera:</label>
+                  <select
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    value={carreraSeleccionada?.codigo || ''}
+                    onChange={(e) => {
+                      const seleccionada = usuario.carreras.find(c => c.codigo === e.target.value);
+                      setCarreraSeleccionada(seleccionada || null);
+                    }}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {usuario.carreras.map((carrera) => (
+                      <option key={carrera.codigo} value={carrera.codigo}>
+                        {carrera.nombre} ({carrera.catalogo})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-    {usuario != null && usuario.carreras.length > 1 && (
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Selecciona una carrera:</label>
-        <select
-          className="w-full border border-gray-300 rounded px-3 py-2"
-          value={carreraSeleccionada?.codigo || ''}
-          onChange={(e) => {
-            const seleccionada = usuario.carreras.find(c => c.codigo === e.target.value);
-            setCarreraSeleccionada(seleccionada || null);
-          }}
-        >
-          <option value="">-- Selecciona --</option>
-          {usuario.carreras.map((carrera) => (
-            <option key={carrera.codigo} value={carrera.codigo}>
-              {carrera.nombre} ({carrera.catalogo})
-            </option>
-          ))}
-        </select>
-      </div>
-    )}
-
-    {/* 👇 Este bloque debe estar completamente encerrado */}
-    {!carreraSeleccionada ? (
-      <p className="text-gray-500">Selecciona una carrera para ver su malla curricular.</p>
-    ) : loading ? (
-      <p className="text-gray-500">Cargando malla...</p>
-    ) : (
-      <div className="overflow-x-auto">
-        <div className="grid grid-cols-5 gap-4 mt-6 min-w-[1000px]">
-          {Object.entries(asignaturasPorSemestre).map(([nivel, asignaturas]) => (
-            <div key={nivel} className="bg-white shadow-md rounded p-4">
-              <h3 className="text-lg font-bold text-blue-700 mb-2">Semestre {nivel}</h3>
-              <ul className="space-y-2">
-                {asignaturas.map((asig) => (
-                  <li key={asig.codigo} className="border p-2 rounded text-sm bg-gray-50 flex justify-between items-center">
-                    <div>
-                      <span className="font-semibold">{asig.codigo}</span>: {asig.asignatura} · <span className="text-gray-600">{asig.creditos} créditos</span>
-                    </div>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      asig.estado === 'APROBADO' ? 'bg-green-200 text-green-800' :
-                      asig.estado === 'REPROBADO' ? 'bg-red-200 text-red-800' :
-                      'bg-gray-200 text-gray-800'
-                    }`}>
-                      {asig.estado}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              {!carreraSeleccionada ? (
+                <p className="text-gray-500">Selecciona una carrera para ver su malla curricular.</p>
+              ) : loading ? (
+                <p className="text-gray-500">Cargando malla...</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <div className="grid grid-cols-5 gap-4 mt-6 min-w-[1000px]">
+                    {Object.entries(asignaturasPorSemestre).map(([nivel, asignaturas]) => (
+                      <div key={nivel} className="bg-white shadow-md rounded p-4">
+                        <h3 className="text-lg font-bold text-blue-700 mb-2">Semestre {nivel}</h3>
+                        <ul className="space-y-2">
+                          {asignaturas.map((asig) => (
+                            <li key={asig.codigo} className="border p-2 rounded text-sm bg-gray-50 flex justify-between items-center">
+                              <div>
+                                <span className="font-semibold">{asig.codigo}</span>: {asig.asignatura} · <span className="text-gray-600">{asig.creditos} créditos</span>
+                              </div>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                asig.estado === 'APROBADO' ? 'bg-green-200 text-green-800' :
+                                asig.estado === 'REPROBADO' ? 'bg-red-200 text-red-800' :
+                                'bg-gray-200 text-gray-800'
+                              }`}>
+                                {asig.estado}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
-    )}
-  </div> // 👈 Este cierra el bloque de malla
-)}
+          )}
 
-
-
-
+         
           {/* Página de Proyecciones */}
           {paginaActual === 'proyecciones' && (
-            <div>
+          <div>
               <h1 className="text-3xl font-bold text-gray-800 mb-4">Proyecciones</h1>
               <p className="text-gray-600">Aquí podrás ver tus proyecciones académicas.</p>
-            </div>
+              {usuario != null && usuario.carreras.length > 1 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Selecciona una carrera:</label>
+                  <select
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    value={carreraSeleccionada?.codigo || ''}
+                    onChange={(e) => {
+                      const seleccionada = usuario.carreras.find(c => c.codigo === e.target.value);
+                      setCarreraSeleccionada(seleccionada || null);
+                    }}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {usuario.carreras.map((carrera) => (
+                      <option key={carrera.codigo} value={carrera.codigo}>
+                        {carrera.nombre} ({carrera.catalogo})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+               {!carreraSeleccionada ? (
+                <p className="text-gray-500">Selecciona una carrera para ver su malla curricular.</p>
+              ) : loading ? (
+                <p className="text-gray-500">Cargando malla...</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <div className="grid grid-cols-5 gap-4 mt-6 min-w-[1000px]">
+                    
+                  </div>
+                </div>
+              )}
+
+              
+          </div>
           )}
 
           {/* Página de Perfil */}
