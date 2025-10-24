@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: caminoucn
       POSTGRES_DB: camino_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
   backend:
     build: ../backend
