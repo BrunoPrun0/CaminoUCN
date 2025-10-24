@@ -10,7 +10,7 @@ type Asignatura = {
   creditos: number;
   estado: string;
   nivel: number;
-  prereq: string;
+  prereq: string[];
 };
 
 type MallaContextType = {

@@ -4,12 +4,15 @@ type Asignatura = {
   creditos: number;
   estado: string;
   nivel: number;
-  prereq: string;
+  prereq: string[];
 };
 const proyeccionCortaArray: Asignatura[] = [];
+const ramosAprobados: Asignatura[] = [];
+const ramosPendientes: Asignatura[] = [];
 export const proyeccionCorta = (progreso: Asignatura[]) => {
     
     // Lista con las asignaturas no cursadas o reprobadas
+    // max 2 sobrecupos (2 semestres con 35 creditos)
     for (let i = 0; i < progreso.length; i++) {
         if (progreso[i].estado === "NO CURSADA" || progreso[i].estado === "REPROBADO"){
             proyeccionCortaArray.push(progreso[i]);
@@ -19,6 +22,5 @@ export const proyeccionCorta = (progreso: Asignatura[]) => {
         console.log(asignatura);
     })
 
-    // Ordenar por nivel (?), por cantidad de prereq ?? ??? 30 o 35 creditos ??
-    // Hacer otra array o no? 
+    
 };
