@@ -32,6 +32,7 @@ export class ApiExternaService {
             if(avanceData.error){
                 throw new BadRequestException('Error '+ mallaData.error);
             }
+            console.log(avanceData);
             const progreso = mallaData.map((asig) => {
                 const estado = avanceData.find((a) => a.course === asig.codigo)?.status || 'NO CURSADA';
                 return {

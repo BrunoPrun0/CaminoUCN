@@ -12,17 +12,24 @@ function Login(){
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        const usuario = await loginUsuario(email, password);
-
-        if (usuario) {
-            console.log('Login exitoso:', usuario);
-            login(usuario);
-            navigate('/home'); // Redirigir a home después del login
-        } else {
-            console.warn('Login fallido');
-            // Puedes agregar un mensaje de error aquí
+        try {
+            
+            const usuario = await loginUsuario(email, password);
+            if (usuario) {
+                console.log('Login exitoso:', usuario);
+                login(usuario);
+                navigate('/home'); // Redirigir a home después del login
+            } else {
+                console.warn('Login fallido');
+                alert('Login fallido');
+            }
+        } catch (error) {
+            alert('Credenciales incorrectas o error en la API externa');
         }
+
+            
+            
+        
     };
 
     return (

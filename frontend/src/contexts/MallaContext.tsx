@@ -11,6 +11,7 @@ type Asignatura = {
   estado: string;
   nivel: number;
   prereq: string[];
+  veces_cursado: number;
 };
 
 type MallaContextType = {
