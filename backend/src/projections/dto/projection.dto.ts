@@ -78,4 +78,12 @@ export class ActualizarProyeccionDto {
   @ValidateNested({ each: true })
   @Type(() => SemesterDto)
   semesters?: SemesterDto[];
+
+  @IsOptional()
+  @IsString()
+  careerCode?: string;
+
+  @IsOptional()
+  @IsString()
+  catalogCode?: string;
 }

@@ -219,4 +219,4 @@ export function ProyeccionesPage() {
       )}
     </div>
   );
-} 
+}

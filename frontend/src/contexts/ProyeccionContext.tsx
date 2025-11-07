@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 import { useMalla } from './MallaContext';
 import { calcularProyeccionAutomatica } from '../utils/proyeccionAutomatica';
 import * as proyeccionService from '../services/proyeccionesService';
-import { puedeAgregarAsignatura } from '../utils/proyeccionAutomatica';
+
 type Asignatura = {
   codigo: string;
   asignatura: string;
@@ -112,7 +112,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     }
 
     // Validar si se puede mover (usando función del utils)
-   
+    const { puedeAgregarAsignatura } = require('../utils/proyeccionAutomatica');
     
     const validacion = puedeAgregarAsignatura(
       codigoAsignatura,

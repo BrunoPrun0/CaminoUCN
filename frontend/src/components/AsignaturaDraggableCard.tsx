@@ -14,14 +14,23 @@ export function AsignaturaDraggableCard({
   isDraggable = true,
   onDragStart
 }: AsignaturaDraggableCardProps) {
-  const { progreso } = useMalla();
+  const { progreso, carreraSeleccionada } = useMalla();
   
   const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
   
+  // Si no se encuentra la asignatura, podría ser de otra carrera
   if (!asignatura) {
     return (
-      <div className="border border-red-300 bg-red-50 p-2 rounded text-xs text-red-600">
-        Asignatura no encontrada: {codigoAsignatura}
+      <div className="border-2 border-orange-300 bg-orange-50 p-2 rounded text-xs">
+        <div className="font-semibold text-orange-700 mb-1">
+          ⚠️ {codigoAsignatura}
+        </div>
+        <div className="text-orange-600">
+          Esta asignatura no pertenece a la carrera actual ({carreraSeleccionada?.nombre || 'N/A'})
+        </div>
+        <div className="text-xs text-orange-500 mt-1">
+          Cambia a la carrera correcta para visualizarla
+        </div>
       </div>
     );
   }

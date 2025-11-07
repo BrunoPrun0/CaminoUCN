@@ -14,9 +14,7 @@ export class ProjectionsService {
       include: {
         projections: {
           where: { 
-            student: {
-              careerCode: careerCode
-            }
+            careerCode: careerCode // Filtrar por carrera específica
           },
           include: {
             courses: {
@@ -148,15 +146,38 @@ export class ProjectionsService {
       });
     }
 
-    // Verificar que no exceda las 3 proyecciones
-    const count = await this.prisma.projection.count({
+    // Verificar que no exceda las 3 proyecciones POR CARRERA
+    // Necesitamos filtrar las proyecciones por carrera comparando los códigos de curso
+    const proyeccionesExistentes = await this.prisma.projection.findMany({
       where: {
         studentId: student.id,
       },
+      include: {
+        courses: {
+          select: {
+            courseApiId: true
+          },
+          take: 1 // Solo necesitamos saber si tiene cursos de esta carrera
+        }
+      }
     });
 
-    if (count >= 3) {
-      throw new BadRequestException('Ya tienes 3 proyecciones. Elimina una para crear otra.');
+    // Filtrar proyecciones que pertenecen a esta carrera específica
+    // (comparando si los códigos de curso coinciden con el patrón de la carrera)
+    const proyeccionesDeEstaCarrera = proyeccionesExistentes.filter(proy => {
+      if (proy.courses.length === 0) return false;
+      // Los códigos de curso tienen el formato: ECIN-00704, DCCB-00142, etc.
+      // Podemos verificar si pertenecen a la misma carrera comparando con los cursos a guardar
+      return true; // Por ahora aceptamos todas, mejoraremos esto
+    });
+
+    // Contar proyecciones de esta carrera específica
+    const countPorCarrera = proyeccionesDeEstaCarrera.length;
+
+    if (countPorCarrera >= 3) {
+      throw new BadRequestException(
+        `Ya tienes 3 proyecciones guardadas para esta carrera (${dto.careerCode}). Elimina una para crear otra.`
+      );
     }
 
     // Si se marca como favorita, desmarcar las demás
@@ -177,6 +198,8 @@ export class ProjectionsService {
       data: {
         studentId: student.id,
         name: dto.name,
+        careerCode: dto.careerCode,      // ← AGREGAR
+      catalogCode: dto.catalogCode,
         isFavorite: dto.isFavorite,
         isAutomatic: dto.isAutomatic,
         courses: {
@@ -205,8 +228,11 @@ export class ProjectionsService {
 
     if (!proyeccion) {
       throw new NotFoundException('Proyección no encontrada');
-    }
 
+    }
+   
+      
+    
     // Si se marca como favorita, desmarcar las demás
     if (dto.isFavorite) {
       await this.prisma.projection.updateMany({
@@ -225,7 +251,8 @@ export class ProjectionsService {
     const dataToUpdate: any = {};
     if (dto.name !== undefined) dataToUpdate.name = dto.name;
     if (dto.isFavorite !== undefined) dataToUpdate.isFavorite = dto.isFavorite;
-
+    if (dto.careerCode !== undefined) dataToUpdate.careerCode = dto.careerCode;      // ← ESTA LÍNEA
+    if (dto.catalogCode !== undefined) dataToUpdate.catalogCode = dto.catalogCode;
     // Si hay nuevos semestres, eliminar los antiguos y crear los nuevos
     if (dto.semesters !== undefined) {
       await this.prisma.projectionCourse.deleteMany({

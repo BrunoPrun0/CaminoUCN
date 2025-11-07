@@ -33,8 +33,6 @@ export function ProyeccionManualView() {
     }
   };
 
-
-  //Modificar metodo, para que no 
   const handleReiniciar = () => {
     if (confirm('¿Estás seguro? Esto reiniciará tu proyección manual con la proyección automática.')) {
       window.location.reload(); // Simple reload para reiniciar

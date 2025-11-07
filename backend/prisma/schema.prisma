@@ -27,6 +27,8 @@ model Student {
 model Projection {
   id            Int      @id @default(autoincrement())
   studentId     Int
+  careerCode    String   // Código de la carrera (ej: "8266", "8606")
+  catalogCode   String   // Código del catálogo (ej: "202410")
   name          String   // Nombre de la proyección (ej: "Plan A", "Graduación 2026")
   isFavorite    Boolean  @default(false)
   isAutomatic   Boolean  @default(false) // true si es proyección automática
@@ -36,7 +38,8 @@ model Projection {
   student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   courses       ProjectionCourse[]
 
-  @@unique([studentId, name]) // No puede haber dos proyecciones con el mismo nombre
+  @@unique([studentId, careerCode, name]) // No puede haber dos proyecciones con el mismo nombre en la misma carrera
+  @@index([studentId, careerCode]) // Para filtrar por estudiante y carrera
   @@map("projections")
 }
 
