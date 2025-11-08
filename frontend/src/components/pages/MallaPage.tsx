@@ -2,9 +2,9 @@
 import { useMemo } from 'react';
 import { useMalla } from '../../contexts/MallaContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { CarreraSelector } from '../CarreraSelector';
-import { MallaGrid } from '../MallaGrid';
-import { ProgressBars } from '../ProgressBars';
+import { CarreraSelector } from '../CarreraSelector.tsx';
+import { MallaGrid } from '../MallaGrid.tsx';
+import { ProgressBars } from '../ProgressBars.tsx';
 
 function calcularCreditosTotales(progreso: any[]) {
   return progreso.reduce((sum, asig) => sum + asig.creditos, 0);

@@ -21,4 +21,4 @@ RUN npx prisma generate
 EXPOSE 3000
 
 # Comando para generar Prisma y arrancar NestJS
-CMD npx prisma generate && npm run start:dev
+CMD ["npm", "run", "start:dev"]

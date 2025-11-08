@@ -42,18 +42,22 @@ export class ApiExternaService {
             console.log('📋 Primera inscripción:', avanceData[0]);
             console.log('📋 Campos de inscripción:', Object.keys(avanceData[0] || {}));
 
+            // Ordenar inscripciones por periodo (más reciente primero)
+            const inscripcionesOrdenadas = [...avanceData].sort((a, b) => {
+                return b.period.localeCompare(a.period);
+            });
+
             // Crear un mapa para obtener el estado más reciente de cada curso
             const estadosPorCodigo = new Map();
             
-            // Procesar solo inscripciones no excluidas
-            avanceData
+            // Procesar solo inscripciones no excluidas (ya ordenadas)
+            inscripcionesOrdenadas
                 .filter(inscripcion => !inscripcion.excluded)
                 .forEach(inscripcion => {
                     const codigo = inscripcion.course;
                     
-                    // Si no existe o el periodo es más reciente, actualizar
-                    if (!estadosPorCodigo.has(codigo) || 
-                        inscripcion.period > estadosPorCodigo.get(codigo).period) {
+                    // Si no existe, agregar (como están ordenadas, el primero es el más reciente)
+                    if (!estadosPorCodigo.has(codigo)) {
                         estadosPorCodigo.set(codigo, inscripcion);
                     }
                 });
@@ -65,16 +69,36 @@ export class ApiExternaService {
                 const estadoReciente = estadosPorCodigo.get(asig.codigo);
                 const estado = estadoReciente?.status || 'NO CURSADA';
                 
+                // Normalizar prerequisitos: siempre retornar array
+                let prereqArray: string[] = [];
+                if (asig.prereq) {
+                    if (typeof asig.prereq === 'string') {
+                        prereqArray = asig.prereq.split(',').map(p => p.trim()).filter(p => p.length > 0);
+                    } else if (Array.isArray(asig.prereq)) {
+                        prereqArray = asig.prereq.map(p => p.trim()).filter(p => p.length > 0);
+                    }
+                }
+                
                 return {
                     codigo: asig.codigo,
                     asignatura: asig.asignatura,
                     creditos: asig.creditos,
                     nivel: asig.nivel,
-                    prereq: asig.prereq ? asig.prereq.split(',') : [],
+                    prereq: prereqArray,
                     estado,
                     veces_cursado: 0 // Se calculará en el frontend
                 };
             });
+            
+            // Contar aprobadas y reprobadas correctamente
+            // Solo contar el estado más reciente de cada asignatura
+            const aprobadas = progreso.filter((p) => p.estado === 'APROBADO').length;
+            const reprobadas = progreso.filter((p) => p.estado === 'REPROBADO').length;
+            
+            console.log('📊 Estadísticas:');
+            console.log('   - Aprobadas:', aprobadas);
+            console.log('   - Reprobadas:', reprobadas);
+            console.log('   - No cursadas:', progreso.filter((p) => p.estado === 'NO CURSADA').length);
             
             // Construir el objeto de respuesta
             const respuesta = {
@@ -82,8 +106,8 @@ export class ApiExternaService {
                 carrera: codCarrera,
                 catalogo,
                 totalAsignaturas: mallaData.length,
-                aprobadas: progreso.filter((p) => p.estado === 'APROBADO').length,
-                reprobadas: progreso.filter((p) => p.estado === 'REPROBADO').length,
+                aprobadas,
+                reprobadas,
                 progreso,
                 inscripciones: avanceData // ← CRÍTICO: Incluir las inscripciones
             };

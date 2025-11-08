@@ -1,54 +1,64 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// schema.prisma - ACTUALIZACIÓN
 
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Student {
   id            Int         @id @default(autoincrement())
-  apiStudentId  String      @unique
+  apiStudentId  String      @unique  // Este sería el RUT
   name          String?
   email         String?
+  careerCode    String?     // Código de carrera
+  catalogCode   String?     // Catálogo
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  projections   Projection[]  // ← Campo inverso agregado
+  projections   Projection[]
 
   @@map("students")
+}
+
+model Projection {
+  id            Int      @id @default(autoincrement())
+  studentId     Int
+  careerCode    String   // Código de la carrera (ej: "8266", "8606")
+  catalogCode   String   // Código del catálogo (ej: "202410")
+  name          String   // Nombre de la proyección (ej: "Plan A", "Graduación 2026")
+  isFavorite    Boolean  @default(false)
+  isAutomatic   Boolean  @default(false) // true si es proyección automática
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courses       ProjectionCourse[]
+
+  @@unique([studentId, careerCode, name]) // No puede haber dos proyecciones con el mismo nombre en la misma carrera
+  @@index([studentId, careerCode]) // Para filtrar por estudiante y carrera
+  @@map("projections")
 }
 
 model ProjectionCourse {
   id            Int      @id @default(autoincrement())
   projectionId  Int
-  courseApiId   String
+  courseApiId   String   // Código del curso (ej: DCCB-00142)
+  semesterNumber Int     // Número de semestre en la proyección (1, 2, 3, ...)
+  credits       Int      // Créditos del curso (para cálculos rápidos)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   projection    Projection @relation(fields: [projectionId], references: [id], onDelete: Cascade)
 
+  @@unique([projectionId, courseApiId]) // Un curso no puede estar duplicado en la misma proyección
+  @@index([projectionId, semesterNumber]) // Para consultas por semestre
   @@map("projection_courses")
 }
 
-model Projection {
-  id          Int      @id @default(autoincrement())
-  studentId   Int
-  name        String?  // Opcional
-  isFavorite  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  courses     ProjectionCourse[]
-
-  @@map("projections")
-}
-
+// Migración sugerida:
+// 1. npx prisma migrate dev --name add_semester_to_projections
+// 2. Actualizar registros existentes si los hay
