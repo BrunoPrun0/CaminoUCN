@@ -44,6 +44,20 @@ export function calcularProyeccionAutomatica(
     progreso.map(asig => [asig.codigo, asig])
   );
 
+  // 4. NUEVO: Crear conjunto de todos los códigos que existen en la malla
+  const codigosExistentes = new Set(progreso.map(asig => asig.codigo));
+
+  // 5. NUEVO: Limpiar prerequisitos inválidos (que no existen en la malla)
+  pendientes.forEach(asig => {
+    asig.prereq = asig.prereq.filter(prereq => {
+      const existe = codigosExistentes.has(prereq);
+      if (!existe) {
+        console.warn(`⚠️ Prerequisito inválido: ${prereq} no existe en la malla (requerido por ${asig.codigo})`);
+      }
+      return existe;
+    });
+  });
+
   const semestres: SemestreProyectado[] = [];
   let asignaturasRestantes = [...pendientes];
   let numeroSemestre = 1;
@@ -52,28 +66,60 @@ export function calcularProyeccionAutomatica(
     const semestreActual: string[] = [];
     let creditosActuales = 0;
 
-    // 4. Calcular nivel mínimo de las asignaturas restantes
+    // 6. Calcular nivel mínimo de las asignaturas restantes
     const nivelMinimo = Math.min(...asignaturasRestantes.map(a => a.nivel));
 
-    // 5. Filtrar asignaturas disponibles (prerequisitos cumplidos)
+    // 7. Filtrar asignaturas disponibles (prerequisitos cumplidos)
     const disponibles = asignaturasRestantes.filter(asig => {
       return asig.prereq.every(prereq => aprobadas.has(prereq));
     });
 
     if (disponibles.length === 0 && asignaturasRestantes.length > 0) {
-      console.error('No hay asignaturas disponibles pero quedan pendientes');
-      console.error('Posible ciclo en prerequisitos o error en datos');
-      break;
+      console.error('❌ No hay asignaturas disponibles pero quedan pendientes');
+      console.error('📋 Asignaturas restantes:', asignaturasRestantes.map(a => ({
+        codigo: a.codigo,
+        nombre: a.asignatura,
+        prereq: a.prereq,
+        prereqFaltantes: a.prereq.filter(p => !aprobadas.has(p))
+      })));
+      
+      // NUEVO: Intentar forzar al menos una asignatura con menos prerequisitos faltantes
+      const conMenosPrereq = [...asignaturasRestantes].sort((a, b) => {
+        const faltantesA = a.prereq.filter(p => !aprobadas.has(p)).length;
+        const faltantesB = b.prereq.filter(p => !aprobadas.has(p)).length;
+        return faltantesA - faltantesB;
+      });
+      
+      if (conMenosPrereq[0]) {
+        console.warn('⚠️ Forzando asignatura con menos prerequisitos faltantes:', conMenosPrereq[0].codigo);
+        semestreActual.push(conMenosPrereq[0].codigo);
+        creditosActuales += conMenosPrereq[0].creditos;
+        aprobadas.add(conMenosPrereq[0].codigo);
+        
+        semestres.push({
+          numero: numeroSemestre,
+          asignaturas: semestreActual,
+          creditos: creditosActuales,
+        });
+        
+        asignaturasRestantes = asignaturasRestantes.filter(
+          asig => !semestreActual.includes(asig.codigo)
+        );
+        numeroSemestre++;
+        continue;
+      } else {
+        break;
+      }
     }
 
-    // 6. Priorizar asignaturas según las reglas
+    // 8. Priorizar asignaturas según las reglas
     const priorizadas = priorizarAsignaturas(
       disponibles,
       nivelMinimo,
       aprobadas
     );
 
-    // 7. Seleccionar asignaturas para el semestre
+    // 9. Seleccionar asignaturas para el semestre
     for (const asig of priorizadas) {
       if (creditosActuales + asig.creditos <= MAX_CREDITOS_POR_SEMESTRE) {
         semestreActual.push(asig.codigo);
@@ -93,7 +139,7 @@ export function calcularProyeccionAutomatica(
       creditos: creditosActuales,
     });
 
-    // 8. Remover asignaturas seleccionadas
+    // 10. Remover asignaturas seleccionadas
     asignaturasRestantes = asignaturasRestantes.filter(
       asig => !semestreActual.includes(asig.codigo)
     );

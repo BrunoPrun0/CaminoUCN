@@ -129,95 +129,124 @@ export class ProjectionsService {
   }
 
   async crearProyeccion(dto: CrearProyeccionDto) {
-    // Buscar o crear estudiante
-    let student = await this.prisma.student.findUnique({
-      where: { apiStudentId: dto.rut }
-    });
-
-    if (!student) {
-      student = await this.prisma.student.create({
-        data: {
-          apiStudentId: dto.rut,
-          name: dto.studentName,
-          email: dto.studentEmail,
-          careerCode: dto.careerCode,
-          catalogCode: dto.catalogCode
-        }
+    try {
+      console.log('🎯 Iniciando creación de proyección:', {
+        rut: dto.rut,
+        careerCode: dto.careerCode,
+        catalogCode: dto.catalogCode,
+        name: dto.name,
+        cantidadSemestres: dto.semesters.length,
+        totalCursos: dto.semesters.reduce((sum, s) => sum + s.courses.length, 0)
       });
-    }
 
-    // Verificar que no exceda las 3 proyecciones POR CARRERA
-    // Necesitamos filtrar las proyecciones por carrera comparando los códigos de curso
-    const proyeccionesExistentes = await this.prisma.projection.findMany({
-      where: {
-        studentId: student.id,
-      },
-      include: {
-        courses: {
-          select: {
-            courseApiId: true
-          },
-          take: 1 // Solo necesitamos saber si tiene cursos de esta carrera
-        }
+      // Buscar o crear estudiante
+      let student = await this.prisma.student.findUnique({
+        where: { apiStudentId: dto.rut }
+      });
+
+      if (!student) {
+        console.log('📝 Creando nuevo estudiante...');
+        student = await this.prisma.student.create({
+          data: {
+            apiStudentId: dto.rut,
+            name: dto.studentName,
+            email: dto.studentEmail,
+            careerCode: dto.careerCode,
+            catalogCode: dto.catalogCode
+          }
+        });
+        console.log('✅ Estudiante creado:', student.id);
+      } else {
+        console.log('✅ Estudiante encontrado:', student.id);
       }
-    });
 
-    // Filtrar proyecciones que pertenecen a esta carrera específica
-    // (comparando si los códigos de curso coinciden con el patrón de la carrera)
-    const proyeccionesDeEstaCarrera = proyeccionesExistentes.filter(proy => {
-      if (proy.courses.length === 0) return false;
-      // Los códigos de curso tienen el formato: ECIN-00704, DCCB-00142, etc.
-      // Podemos verificar si pertenecen a la misma carrera comparando con los cursos a guardar
-      return true; // Por ahora aceptamos todas, mejoraremos esto
-    });
-
-    // Contar proyecciones de esta carrera específica
-    const countPorCarrera = proyeccionesDeEstaCarrera.length;
-
-    if (countPorCarrera >= 3) {
-      throw new BadRequestException(
-        `Ya tienes 3 proyecciones guardadas para esta carrera (${dto.careerCode}). Elimina una para crear otra.`
-      );
-    }
-
-    // Si se marca como favorita, desmarcar las demás
-    if (dto.isFavorite) {
-      await this.prisma.projection.updateMany({
+      // Verificar que no exceda las 3 proyecciones POR CARRERA
+      const count = await this.prisma.projection.count({
         where: {
           studentId: student.id,
-          isFavorite: true,
-        },
-        data: {
-          isFavorite: false,
+          careerCode: dto.careerCode,
         },
       });
-    }
 
-    // Crear proyección con cursos
-    const projection = await this.prisma.projection.create({
-      data: {
-        studentId: student.id,
-        name: dto.name,
-        careerCode: dto.careerCode,      // ← AGREGAR
-      catalogCode: dto.catalogCode,
-        isFavorite: dto.isFavorite,
-        isAutomatic: dto.isAutomatic,
-        courses: {
-          create: dto.semesters.flatMap(semester => 
-            semester.courses.map(course => ({
-              courseApiId: course.courseApiId,
-              semesterNumber: semester.numero,
-              credits: course.credits
-            }))
-          )
-        }
-      },
-      include: {
-        courses: true
+      console.log(`📊 Proyecciones existentes para carrera ${dto.careerCode}:`, count);
+
+      if (count >= 3) {
+        throw new BadRequestException(
+          `Ya tienes 3 proyecciones guardadas para esta carrera. Elimina una para crear otra.`
+        );
       }
-    });
 
-    return projection;
+      // Si se marca como favorita, desmarcar las demás DE ESTA CARRERA
+      if (dto.isFavorite) {
+        console.log('⭐ Desmarcando otras favoritas de esta carrera...');
+        await this.prisma.projection.updateMany({
+          where: {
+            studentId: student.id,
+            careerCode: dto.careerCode,
+            isFavorite: true,
+          },
+          data: {
+            isFavorite: false,
+          },
+        });
+      }
+
+      // Validar que todos los cursos tengan datos válidos
+      const cursosInvalidos = dto.semesters.flatMap(sem => 
+        sem.courses.filter(c => !c.courseApiId || c.credits === undefined)
+      );
+
+      if (cursosInvalidos.length > 0) {
+        console.error('❌ Cursos inválidos detectados:', cursosInvalidos);
+        throw new BadRequestException('Hay cursos con datos inválidos en la proyección');
+      }
+
+      console.log('💾 Creando proyección en la base de datos...');
+
+      // Crear proyección con cursos
+      const projection = await this.prisma.projection.create({
+        data: {
+          studentId: student.id,
+          careerCode: dto.careerCode,
+          catalogCode: dto.catalogCode,
+          name: dto.name,
+          isFavorite: dto.isFavorite,
+          isAutomatic: dto.isAutomatic,
+          courses: {
+            create: dto.semesters.flatMap(semester => 
+              semester.courses.map(course => ({
+                courseApiId: course.courseApiId,
+                semesterNumber: semester.numero,
+                credits: course.credits
+              }))
+            )
+          }
+        },
+        include: {
+          courses: true
+        }
+      });
+
+      console.log('✅ Proyección creada exitosamente:', projection.id);
+      return projection;
+
+    } catch (error) {
+      console.error('❌ Error al crear proyección:', error);
+      
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      
+      // Log más detallado del error
+      if (error.code) {
+        console.error('Código de error Prisma:', error.code);
+      }
+      if (error.meta) {
+        console.error('Metadata del error:', error.meta);
+      }
+      
+      throw new BadRequestException(`Error al crear proyección: ${error.message}`);
+    }
   }
 
   async actualizarProyeccion(dto: ActualizarProyeccionDto) {
@@ -228,16 +257,14 @@ export class ProjectionsService {
 
     if (!proyeccion) {
       throw new NotFoundException('Proyección no encontrada');
-
     }
-   
-      
-    
-    // Si se marca como favorita, desmarcar las demás
+
+    // Si se marca como favorita, desmarcar las demás DE ESTA CARRERA
     if (dto.isFavorite) {
       await this.prisma.projection.updateMany({
         where: {
           studentId: proyeccion.studentId,
+          careerCode: proyeccion.careerCode, // Solo de esta carrera
           isFavorite: true,
           id: { not: dto.id },
         },
@@ -251,8 +278,7 @@ export class ProjectionsService {
     const dataToUpdate: any = {};
     if (dto.name !== undefined) dataToUpdate.name = dto.name;
     if (dto.isFavorite !== undefined) dataToUpdate.isFavorite = dto.isFavorite;
-    if (dto.careerCode !== undefined) dataToUpdate.careerCode = dto.careerCode;      // ← ESTA LÍNEA
-    if (dto.catalogCode !== undefined) dataToUpdate.catalogCode = dto.catalogCode;
+
     // Si hay nuevos semestres, eliminar los antiguos y crear los nuevos
     if (dto.semesters !== undefined) {
       await this.prisma.projectionCourse.deleteMany({
@@ -302,10 +328,11 @@ export class ProjectionsService {
       throw new NotFoundException('Proyección no encontrada');
     }
 
-    // Desmarcar todas las favoritas
+    // Desmarcar todas las favoritas DE ESTA CARRERA
     await this.prisma.projection.updateMany({
       where: {
         studentId: proyeccion.studentId,
+        careerCode: proyeccion.careerCode, // Solo de esta carrera
         isFavorite: true,
       },
       data: {

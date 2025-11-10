@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useMalla } from './MallaContext';
-import { calcularProyeccionAutomatica } from '../utils/proyeccionAutomatica';
+import { calcularProyeccionAutomatica, puedeAgregarAsignatura } from '../utils/proyeccionAutomatica';
 import * as proyeccionService from '../services/proyeccionesService';
 
 type Asignatura = {
@@ -22,12 +22,21 @@ type SemestreProyectado = {
   creditos: number;
 };
 
+type SemestreGuardado = {
+  numero: number;
+  courses: {
+    courseApiId: string;
+    credits: number;
+  }[];
+  creditos: number;
+};
+
 type ProyeccionGuardada = {
   id: number;
   name: string;
   isFavorite: boolean;
   isAutomatic: boolean;
-  semesters: SemestreProyectado[];
+  semesters: SemestreGuardado[];
   createdAt: string;
   updatedAt: string;
 };
@@ -111,9 +120,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
       return { exito: false, mensaje: 'Semestre no encontrado' };
     }
 
-    // Validar si se puede mover (usando función del utils)
-    const { puedeAgregarAsignatura } = require('../utils/proyeccionAutomatica');
-    
+    // Validar si se puede mover
     const validacion = puedeAgregarAsignatura(
       codigoAsignatura,
       semDestino,
@@ -174,7 +181,18 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
         usuario.rut,
         carreraSeleccionada.codigo
       );
-      setProyeccionesGuardadas(proyecciones);
+      
+      // Convertir el formato del backend al formato esperado
+      const proyeccionesConvertidas: ProyeccionGuardada[] = proyecciones.map(p => ({
+        ...p,
+        semesters: p.semesters.map(sem => ({
+          numero: sem.numero,
+          courses: sem.courses,
+          creditos: sem.courses.reduce((sum, c) => sum + c.credits, 0)
+        }))
+      }));
+      
+      setProyeccionesGuardadas(proyeccionesConvertidas);
     } catch (err) {
       console.error('Error al cargar proyecciones:', err);
       setError('Error al cargar proyecciones guardadas');
@@ -199,7 +217,18 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
       }));
 
       setProyeccionManual(semestres);
-      setProyeccionSeleccionada(proyeccion);
+      
+      // Convertir y guardar la proyección seleccionada
+      const proyeccionConvertida: ProyeccionGuardada = {
+        ...proyeccion,
+        semesters: proyeccion.semesters.map(sem => ({
+          numero: sem.numero,
+          courses: sem.courses,
+          creditos: sem.courses.reduce((sum, c) => sum + c.credits, 0)
+        }))
+      };
+      
+      setProyeccionSeleccionada(proyeccionConvertida);
     } catch (err) {
       console.error('Error al cargar proyección:', err);
       setError('Error al cargar proyección');
@@ -235,8 +264,8 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
         careerCode: carreraSeleccionada.codigo,
         catalogCode: carreraSeleccionada.catalogo,
         name: nombre,
-        studentName: usuario.nombre,
-        studentEmail: usuario.email,
+        studentName: undefined, // La API no proporciona este dato
+        studentEmail: undefined, // La API no proporciona este dato
         isFavorite: esFavorita,
         isAutomatic: esAutomatica,
         semesters
@@ -296,12 +325,18 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     }
   }, [progreso, carreraSeleccionada]);
 
-  // Cargar proyecciones guardadas cuando cambie la carrera
+  // CRÍTICO: Limpiar proyecciones cuando cambia la carrera
   useEffect(() => {
     if (usuario && carreraSeleccionada) {
+      // Limpiar estados antes de cargar nueva carrera
+      setProyeccionManual([]);
+      setProyeccionAutomatica([]);
+      setProyeccionSeleccionada(null);
+      
+      // Cargar proyecciones de la nueva carrera
       recargarProyecciones();
     }
-  }, [usuario, carreraSeleccionada]);
+  }, [usuario, carreraSeleccionada?.codigo]); // Depender del código específico
 
   // Limpiar cuando se cierra sesión
   useEffect(() => {
