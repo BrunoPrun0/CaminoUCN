@@ -6,14 +6,14 @@ export class ApiExternaService {
 
     async getProgreso(codCarrera: string, catalogo: string, rut: string) {
         try {
-            console.log('🎯 Service iniciando getProgreso para:', { codCarrera, catalogo, rut });
+            console.log('Service iniciando getProgreso para:', { codCarrera, catalogo, rut });
             
             const urlMalla = `https://losvilos.ucn.cl/hawaii/api/mallas?${codCarrera}-${catalogo}`;
             const urlAvance = `https://puclaro.ucn.cl/eross/avance/avance.php?rut=${rut}&codcarrera=${codCarrera}`;
             const headers = {'X-HAWAII-AUTH': 'jf400fejof13f'};
             
             // Obtener malla
-            console.log('📡 Fetching malla desde:', urlMalla);
+            console.log('Fetching malla desde:', urlMalla);
             const resMalla = await fetch(urlMalla, {
                 method: 'GET',
                 headers,
@@ -24,10 +24,10 @@ export class ApiExternaService {
             if (mallaData.error) {
                 throw new BadRequestException('Error ' + mallaData.error);
             }
-            console.log('✅ Malla obtenida:', mallaData.length, 'asignaturas');
+            console.log('Malla obtenida:', mallaData.length, 'asignaturas');
 
             // Obtener avance
-            console.log('📡 Fetching avance desde:', urlAvance);
+            console.log('Fetching avance desde:', urlAvance);
             const resAvance = await fetch(urlAvance, {
                 method: 'GET',
                 redirect: 'follow'
@@ -109,10 +109,10 @@ export class ApiExternaService {
                 aprobadas,
                 reprobadas,
                 progreso,
-                inscripciones: avanceData // ← CRÍTICO: Incluir las inscripciones
+                inscripciones: avanceData 
             };
 
-            // 🔍 DEBUG FINAL: Verificar qué se va a retornar
+            // Verificar qué se va a retornar
             console.log('📦 Objeto respuesta construido:');
             console.log('   - totalAsignaturas:', respuesta.totalAsignaturas);
             console.log('   - aprobadas:', respuesta.aprobadas);
@@ -125,7 +125,7 @@ export class ApiExternaService {
             return respuesta;
             
         } catch (err) {
-            console.error('❌ Error en getProgreso:', err);
+            console.error('Error en getProgreso:', err);
             throw new Error('Error al conectar con la API externa malla');
         }
     }
@@ -144,7 +144,7 @@ export class ApiExternaService {
             return studentData;
             
         } catch (err) {
-            console.error('❌ Error en login:', err);
+            console.error('Error en login:', err);
             throw new Error('Error al conectar con la API externa');
         }
     }

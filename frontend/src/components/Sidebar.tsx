@@ -1,6 +1,4 @@
 // src/components/Sidebar.tsx
-import { useNavigate } from 'react-router-dom';
-
 type MenuItem = {
   key: string;
   label: string;
@@ -14,10 +12,10 @@ type SidebarProps = {
 };
 
 const menuItems: MenuItem[] = [
-  { key: 'inicio', label: 'Inicio', icon: '🏠' },
-  { key: 'malla', label: 'Mi Malla', icon: '📚' },
-  { key: 'proyecciones', label: 'Proyecciones', icon: '📊' },
-  { key: 'perfil', label: 'Perfil', icon: '👤' },
+  { key: 'inicio', label: 'Inicio', icon: 'fi fi-rr-home' },
+  { key: 'malla', label: 'Mi Malla', icon: 'fi fi-rr-ballot' }, // no se ve
+  { key: 'proyecciones', label: 'Proyecciones', icon: 'fi fi-rr-chart-histogram' },
+  { key: 'perfil', label: 'Perfil', icon: 'fi fi-rr-user-graduate' }, // no se ve
 ];
 
 export function Sidebar({ paginaActual, onPageChange, onLogout }: SidebarProps) {
@@ -46,7 +44,8 @@ export function Sidebar({ paginaActual, onPageChange, onLogout }: SidebarProps) 
                   : 'hover:bg-gray-800'
               }`}
             >
-              <span className="text-lg">{item.icon}</span>
+              {/* Usa <i> en lugar de <span> para los iconos */}
+              <i className={item.icon}></i>
               <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                 {item.label}
               </span>
@@ -61,7 +60,7 @@ export function Sidebar({ paginaActual, onPageChange, onLogout }: SidebarProps) 
           onClick={onLogout}
           className="w-full flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-gray-800 transition duration-200"
         >
-          <span className="text-lg">🚪</span>
+          <i className="fi fi-rr-exit"></i>
           <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
             Cerrar Sesión
           </span>

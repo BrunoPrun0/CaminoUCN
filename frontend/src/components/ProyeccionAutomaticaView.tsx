@@ -63,7 +63,7 @@ export function ProyeccionAutomaticaView() {
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              📊 Proyección Automática
+              <i className="fi fi-rr-journey"></i> Proyección Automática
             </h2>
             <p className="text-gray-600 text-sm">
               Ruta óptima calculada automáticamente según prerequisitos y restricciones
@@ -73,7 +73,7 @@ export function ProyeccionAutomaticaView() {
             onClick={() => setShowSaveModal(true)}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
           >
-            💾 Guardar Proyección
+            <i className="fi fi-rr-disk"></i> Guardar Proyección
           </button>
         </div>
 

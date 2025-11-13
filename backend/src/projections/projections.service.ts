@@ -130,7 +130,7 @@ export class ProjectionsService {
 
   async crearProyeccion(dto: CrearProyeccionDto) {
     try {
-      console.log('🎯 Iniciando creación de proyección:', {
+      console.log('Iniciando creación de proyección:', {
         rut: dto.rut,
         careerCode: dto.careerCode,
         catalogCode: dto.catalogCode,
@@ -145,7 +145,7 @@ export class ProjectionsService {
       });
 
       if (!student) {
-        console.log('📝 Creando nuevo estudiante...');
+        console.log('Creando nuevo estudiante...');
         student = await this.prisma.student.create({
           data: {
             apiStudentId: dto.rut,
@@ -155,9 +155,9 @@ export class ProjectionsService {
             catalogCode: dto.catalogCode
           }
         });
-        console.log('✅ Estudiante creado:', student.id);
+        console.log('Estudiante creado:', student.id);
       } else {
-        console.log('✅ Estudiante encontrado:', student.id);
+        console.log('Estudiante encontrado:', student.id);
       }
 
       // Verificar que no exceda las 3 proyecciones POR CARRERA
@@ -168,7 +168,7 @@ export class ProjectionsService {
         },
       });
 
-      console.log(`📊 Proyecciones existentes para carrera ${dto.careerCode}:`, count);
+      console.log(`Proyecciones existentes para carrera ${dto.careerCode}:`, count);
 
       if (count >= 3) {
         throw new BadRequestException(
@@ -178,7 +178,7 @@ export class ProjectionsService {
 
       // Si se marca como favorita, desmarcar las demás DE ESTA CARRERA
       if (dto.isFavorite) {
-        console.log('⭐ Desmarcando otras favoritas de esta carrera...');
+        console.log('Desmarcando otras favoritas de esta carrera...');
         await this.prisma.projection.updateMany({
           where: {
             studentId: student.id,
@@ -197,11 +197,11 @@ export class ProjectionsService {
       );
 
       if (cursosInvalidos.length > 0) {
-        console.error('❌ Cursos inválidos detectados:', cursosInvalidos);
+        console.error('Cursos inválidos detectados:', cursosInvalidos);
         throw new BadRequestException('Hay cursos con datos inválidos en la proyección');
       }
 
-      console.log('💾 Creando proyección en la base de datos...');
+      console.log('Creando proyección en la base de datos...');
 
       // Crear proyección con cursos
       const projection = await this.prisma.projection.create({
@@ -227,11 +227,11 @@ export class ProjectionsService {
         }
       });
 
-      console.log('✅ Proyección creada exitosamente:', projection.id);
+      console.log('Proyección creada exitosamente:', projection.id);
       return projection;
 
     } catch (error) {
-      console.error('❌ Error al crear proyección:', error);
+      console.error('Error al crear proyección:', error);
       
       if (error instanceof BadRequestException) {
         throw error;

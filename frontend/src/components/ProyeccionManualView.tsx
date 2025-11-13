@@ -77,7 +77,7 @@ export function ProyeccionManualView() {
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              ✏️ Proyección Manual
+               <i className="fi fi-rr-edit"></i> Proyección Manual
             </h2>
             <p className="text-gray-600 text-sm">
               Arrastra y suelta las asignaturas para personalizar tu plan de estudios
@@ -88,19 +88,19 @@ export function ProyeccionManualView() {
               onClick={handleReiniciar}
               className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
             >
-              🔄 Reiniciar
+              <i className="fi fi-rr-refresh"></i> Reiniciar
             </button>
             <button
               onClick={agregarSemestre}
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
             >
-              ➕ Agregar Semestre
+              <i className="fi fi-rr-add"></i> Agregar Semestre
             </button>
             <button
               onClick={() => setShowSaveModal(true)}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
             >
-              💾 Guardar
+              <i className="fi fi-rr-disk"></i> Guardar
             </button>
           </div>
         </div>
