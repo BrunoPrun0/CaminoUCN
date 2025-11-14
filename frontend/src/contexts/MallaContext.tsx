@@ -1,4 +1,3 @@
-// src/contexts/MallaContext.tsx
 import { createContext, useContext, useState, useEffect} from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
@@ -110,8 +109,8 @@ export function MallaProvider({ children }: { children: ReactNode }) {
         };
       });
       
-      console.log('1️⃣1️⃣ Progreso actualizado (primeras 5):', progresoActualizado.slice(0, 5));
-      console.log('1️⃣2️⃣ Asignaturas con veces_cursado > 0:', 
+      console.log(' Progreso actualizado (primeras 5):', progresoActualizado.slice(0, 5));
+      console.log(' Asignaturas con veces_cursado > 0:', 
         progresoActualizado.filter(a => a.veces_cursado > 0)
       );
       console.log('=== DEBUG FIN ===');

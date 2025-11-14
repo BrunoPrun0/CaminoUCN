@@ -1,5 +1,3 @@
-// src/components/CarreraSelector.tsx
-
 type Carrera = {
   codigo: string;
   nombre: string;

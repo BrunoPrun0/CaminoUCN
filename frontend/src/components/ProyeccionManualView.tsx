@@ -1,4 +1,3 @@
-// src/components/ProyeccionManualView.tsx
 import { useState } from 'react';
 import { useProyeccion } from '../contexts/ProyeccionContext';
 import { SemestreColumn } from './SemestreColumn';

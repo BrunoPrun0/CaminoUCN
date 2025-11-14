@@ -1,4 +1,3 @@
-// src/components/pages/MallaPage.tsx
 import { useMemo } from 'react';
 import { useMalla } from '../../contexts/MallaContext';
 import { useAuth } from '../../contexts/AuthContext';

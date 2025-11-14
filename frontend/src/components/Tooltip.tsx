@@ -1,6 +1,5 @@
-// src/components/Tooltip.tsx
-import React, { ReactNode } from 'react';
-
+import React from 'react';
+import type { ReactNode } from 'react';
 interface TooltipProps {
   content: ReactNode; // El contenido del tooltip (los prerrequisitos)
   children: ReactNode; // El elemento sobre el que se hace hover (la tarjeta AsignaturaCard)
@@ -16,13 +15,13 @@ export const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
       {/* Contenido del Tooltip - Se oculta/muestra con group-hover */}
       <div 
         className="absolute bottom-full left-1/2 mb-2 z-50 
-                   transform -translate-x-1/2 
-                   scale-0 opacity-0 
-                   transition-all duration-300 ease-in-out
-                   rounded-lg p-3 
-                   bg-gray-800 text-white text-sm shadow-xl 
-                   group-hover:scale-100 group-hover:opacity-100 
-                   min-w-max max-w-xs text-left" 
+                  transform -translate-x-1/2 
+                  scale-0 opacity-0 
+                  transition-all duration-300 ease-in-out
+                  rounded-lg p-3 
+                  bg-gray-800 text-white text-sm shadow-xl 
+                  group-hover:scale-100 group-hover:opacity-100 
+                  min-w-max max-w-xs text-left" 
       >
         {content}
         {/* Flecha (opcional) */}

@@ -95,7 +95,7 @@ export class ApiExternaService {
             const aprobadas = progreso.filter((p) => p.estado === 'APROBADO').length;
             const reprobadas = progreso.filter((p) => p.estado === 'REPROBADO').length;
             
-            console.log('📊 Estadísticas:');
+            console.log('Estadísticas:');
             console.log('   - Aprobadas:', aprobadas);
             console.log('   - Reprobadas:', reprobadas);
             console.log('   - No cursadas:', progreso.filter((p) => p.estado === 'NO CURSADA').length);
@@ -113,7 +113,7 @@ export class ApiExternaService {
             };
 
             // Verificar qué se va a retornar
-            console.log('📦 Objeto respuesta construido:');
+            console.log('Objeto respuesta construido:');
             console.log('   - totalAsignaturas:', respuesta.totalAsignaturas);
             console.log('   - aprobadas:', respuesta.aprobadas);
             console.log('   - reprobadas:', respuesta.reprobadas);

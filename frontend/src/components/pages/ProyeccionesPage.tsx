@@ -1,4 +1,3 @@
-// src/components/pages/ProyeccionesPage.tsx
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMalla } from '../../contexts/MallaContext';

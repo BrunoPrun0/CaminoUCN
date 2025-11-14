@@ -1,4 +1,3 @@
-// src/contexts/ProyeccionContext.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
@@ -6,15 +5,6 @@ import { useMalla } from './MallaContext';
 import { calcularProyeccionAutomatica, puedeAgregarAsignatura } from '../utils/proyeccionAutomatica';
 import * as proyeccionService from '../services/proyeccionesService';
 
-type Asignatura = {
-  codigo: string;
-  asignatura: string;
-  creditos: number;
-  estado: string;
-  nivel: number;
-  prereq: string[];
-  veces_cursado: number;
-};
 
 type SemestreProyectado = {
   numero: number;
@@ -87,7 +77,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
   const calcularAutomatica = () => {
     if (progreso.length === 0) return;
     
-    console.log('🤖 Calculando proyección automática...');
+    console.log('Calculando proyección automática...');
     const proyeccion = calcularProyeccionAutomatica(progreso);
     setProyeccionAutomatica(proyeccion);
     
@@ -264,8 +254,8 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
         careerCode: carreraSeleccionada.codigo,
         catalogCode: carreraSeleccionada.catalogo,
         name: nombre,
-        studentName: undefined, // La API no proporciona este dato
-        studentEmail: undefined, // La API no proporciona este dato
+        studentName: undefined, 
+        studentEmail: undefined, 
         isFavorite: esFavorita,
         isAutomatic: esAutomatica,
         semesters

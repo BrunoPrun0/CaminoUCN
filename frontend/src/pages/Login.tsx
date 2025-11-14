@@ -18,7 +18,7 @@ function Login(){
             if (usuario) {
                 console.log('Login exitoso:', usuario);
                 login(usuario);
-                navigate('/home'); // Redirigir a home después del login
+                navigate('/home'); 
             } else {
                 console.warn('Login fallido');
                 alert('Login fallido');

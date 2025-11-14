@@ -1,7 +1,5 @@
-// src/pages/Home.tsx
 import { useState } from 'react'; 
 import { useAuth } from '../contexts/AuthContext';
-import { useMalla } from '../contexts/MallaContext';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { MallaPage } from '../components/pages/MallaPage';

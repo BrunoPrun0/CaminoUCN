@@ -1,4 +1,3 @@
-// src/components/SemestreColumn.tsx
 import { useState } from 'react';
 import { AsignaturaDraggableCard } from './AsignaturaDraggableCard';
 

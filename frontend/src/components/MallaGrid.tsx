@@ -1,4 +1,3 @@
-// src/components/MallaGrid.tsx
 import { AsignaturaCard } from './AsignaturaCard';
 
 type Asignatura = {

@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 type MenuItem = {
   key: string;
   label: string;
@@ -44,7 +43,7 @@ export function Sidebar({ paginaActual, onPageChange, onLogout }: SidebarProps) 
                   : 'hover:bg-gray-800'
               }`}
             >
-              {/* Usa <i> en lugar de <span> para los iconos */}
+              
               <i className={item.icon}></i>
               <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                 {item.label}

@@ -1,4 +1,3 @@
-// src/projections/dto/projection.dto.ts
 import { IsString, IsBoolean, IsArray, IsNotEmpty, ValidateNested, IsNumber, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 

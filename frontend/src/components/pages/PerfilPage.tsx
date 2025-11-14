@@ -1,4 +1,3 @@
-// src/components/pages/PerfilPage.tsx
 import { useAuth } from '../../contexts/AuthContext';
 
 export function PerfilPage() {

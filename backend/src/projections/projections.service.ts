@@ -1,4 +1,3 @@
-// src/proyecciones/proyecciones.service.ts
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearProyeccionDto, ActualizarProyeccionDto } from './dto/projection.dto';

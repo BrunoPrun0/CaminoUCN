@@ -1,5 +1,3 @@
-// src/utils/proyeccionAutomatica.ts
-
 type Asignatura = {
   codigo: string;
   asignatura: string;
@@ -91,7 +89,7 @@ export function calcularProyeccionAutomatica(
       });
       
       if (conMenosPrereq[0]) {
-        console.warn('⚠️ Forzando asignatura con menos prerequisitos faltantes:', conMenosPrereq[0].codigo);
+        console.warn('Forzando asignatura con menos prerequisitos faltantes:', conMenosPrereq[0].codigo);
         semestreActual.push(conMenosPrereq[0].codigo);
         creditosActuales += conMenosPrereq[0].creditos;
         aprobadas.add(conMenosPrereq[0].codigo);

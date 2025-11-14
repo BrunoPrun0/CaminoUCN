@@ -1,5 +1,3 @@
-// src/components/ProgressBars.tsx
-
 type MetricasProgreso = {
   totalAsignaturas: number;
   aprobadas: number;

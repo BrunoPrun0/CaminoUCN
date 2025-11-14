@@ -1,4 +1,3 @@
-// src/components/AsignaturaDraggableCard.tsx
 import { useMalla } from '../contexts/MallaContext';
 
 type AsignaturaDraggableCardProps = {

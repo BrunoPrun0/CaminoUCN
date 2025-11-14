@@ -1,5 +1,3 @@
-// src/services/proyeccionService.ts
-
 type SemestreProyectado = {
   numero: number;
   courses: {

@@ -1,6 +1,5 @@
-// src/components/AsignaturaCard.tsx
 import { Tooltip } from './Tooltip'; 
-import React from 'react';
+
 
 type Asignatura = {
   codigo: string;
@@ -50,7 +49,7 @@ export function AsignaturaCard({ asignatura }: AsignaturaCardProps) {
     //  tooltip
     <Tooltip content={tooltipContent}>
       {/* contenido de la tarjeta (el 'children' del tooltip) */}
-      <div className="w-full relative"> {/* Envoltorio necesario para el flex de Tooltip */}
+      <div className="w-full relative"> 
         <li className="border border-gray-200 p-3 rounded-md text-center shadow-sm transition-shadow duration-200 hover:shadow-lg bg-white">
           
           {/* Código de la asignatura */}

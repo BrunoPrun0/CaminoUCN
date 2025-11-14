@@ -1,4 +1,3 @@
-// src/components/ProyeccionAutomaticaView.tsx
 import { useState } from 'react';
 import { useProyeccion } from '../contexts/ProyeccionContext';
 import { SemestreColumn } from './SemestreColumn';
@@ -112,7 +111,7 @@ export function ProyeccionAutomaticaView() {
               numero={semestre.numero}
               asignaturas={semestre.asignaturas}
               creditos={semestre.creditos}
-              onDrop={() => {}} // No hay drag & drop en automática
+              onDrop={() => {}} 
               isDraggable={false}
               esManual={false}
             />
