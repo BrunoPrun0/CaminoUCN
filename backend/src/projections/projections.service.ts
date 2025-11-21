@@ -1,6 +1,13 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CrearProyeccionDto, ActualizarProyeccionDto } from './dto/projection.dto';
+import {
+  CrearProyeccionDto,
+  ActualizarProyeccionDto,
+} from './dto/projection.dto';
 
 @Injectable()
 export class ProjectionsService {
@@ -12,24 +19,21 @@ export class ProjectionsService {
       where: { apiStudentId: rut },
       include: {
         projections: {
-          where: { 
-            careerCode: careerCode // Filtrar por carrera específica
+          where: {
+            careerCode: careerCode, // Filtrar por carrera específica
           },
           include: {
             courses: {
-              orderBy: [
-                { semesterNumber: 'asc' },
-                { courseApiId: 'asc' }
-              ]
-            }
+              orderBy: [{ semesterNumber: 'asc' }, { courseApiId: 'asc' }],
+            },
           },
           orderBy: [
             { isFavorite: 'desc' },
             { isAutomatic: 'desc' },
             { updatedAt: 'desc' },
           ],
-        }
-      }
+        },
+      },
     });
 
     if (!student) {
@@ -37,17 +41,17 @@ export class ProjectionsService {
     }
 
     // Transformar a formato esperado por el frontend
-    return student.projections.map(proj => {
+    return student.projections.map((proj) => {
       // Agrupar cursos por semestre
       const semesterMap = new Map<number, any[]>();
-      
-      proj.courses.forEach(course => {
+
+      proj.courses.forEach((course) => {
         if (!semesterMap.has(course.semesterNumber)) {
           semesterMap.set(course.semesterNumber, []);
         }
         semesterMap.get(course.semesterNumber)!.push({
           courseApiId: course.courseApiId,
-          credits: course.credits
+          credits: course.credits,
         });
       });
 
@@ -57,7 +61,7 @@ export class ProjectionsService {
         .map(([numero, courses]) => ({
           numero,
           courses,
-          creditos: courses.reduce((sum, c) => sum + c.credits, 0)
+          creditos: courses.reduce((sum, c) => sum + c.credits, 0),
         }));
 
       return {
@@ -67,7 +71,7 @@ export class ProjectionsService {
         isAutomatic: proj.isAutomatic,
         semesters,
         createdAt: proj.createdAt,
-        updatedAt: proj.updatedAt
+        updatedAt: proj.updatedAt,
       };
     });
   }
@@ -77,13 +81,10 @@ export class ProjectionsService {
       where: { id },
       include: {
         courses: {
-          orderBy: [
-            { semesterNumber: 'asc' },
-            { courseApiId: 'asc' }
-          ]
+          orderBy: [{ semesterNumber: 'asc' }, { courseApiId: 'asc' }],
         },
-        student: true
-      }
+        student: true,
+      },
     });
 
     if (!proyeccion) {
@@ -92,14 +93,14 @@ export class ProjectionsService {
 
     // Agrupar por semestre
     const semesterMap = new Map<number, any[]>();
-    
-    proyeccion.courses.forEach(course => {
+
+    proyeccion.courses.forEach((course) => {
       if (!semesterMap.has(course.semesterNumber)) {
         semesterMap.set(course.semesterNumber, []);
       }
       semesterMap.get(course.semesterNumber)!.push({
         courseApiId: course.courseApiId,
-        credits: course.credits
+        credits: course.credits,
       });
     });
 
@@ -108,7 +109,7 @@ export class ProjectionsService {
       .map(([numero, courses]) => ({
         numero,
         courses,
-        creditos: courses.reduce((sum, c) => sum + c.credits, 0)
+        creditos: courses.reduce((sum, c) => sum + c.credits, 0),
       }));
 
     return {
@@ -120,10 +121,10 @@ export class ProjectionsService {
       student: {
         rut: proyeccion.student.apiStudentId,
         name: proyeccion.student.name,
-        email: proyeccion.student.email
+        email: proyeccion.student.email,
       },
       createdAt: proyeccion.createdAt,
-      updatedAt: proyeccion.updatedAt
+      updatedAt: proyeccion.updatedAt,
     };
   }
 
@@ -135,12 +136,15 @@ export class ProjectionsService {
         catalogCode: dto.catalogCode,
         name: dto.name,
         cantidadSemestres: dto.semesters.length,
-        totalCursos: dto.semesters.reduce((sum, s) => sum + s.courses.length, 0)
+        totalCursos: dto.semesters.reduce(
+          (sum, s) => sum + s.courses.length,
+          0,
+        ),
       });
 
       // Buscar o crear estudiante
       let student = await this.prisma.student.findUnique({
-        where: { apiStudentId: dto.rut }
+        where: { apiStudentId: dto.rut },
       });
 
       if (!student) {
@@ -151,8 +155,8 @@ export class ProjectionsService {
             name: dto.studentName,
             email: dto.studentEmail,
             careerCode: dto.careerCode,
-            catalogCode: dto.catalogCode
-          }
+            catalogCode: dto.catalogCode,
+          },
         });
         console.log('Estudiante creado:', student.id);
       } else {
@@ -167,11 +171,14 @@ export class ProjectionsService {
         },
       });
 
-      console.log(`Proyecciones existentes para carrera ${dto.careerCode}:`, count);
+      console.log(
+        `Proyecciones existentes para carrera ${dto.careerCode}:`,
+        count,
+      );
 
       if (count >= 3) {
         throw new BadRequestException(
-          `Ya tienes 3 proyecciones guardadas para esta carrera. Elimina una para crear otra.`
+          `Ya tienes 3 proyecciones guardadas para esta carrera. Elimina una para crear otra.`,
         );
       }
 
@@ -191,13 +198,15 @@ export class ProjectionsService {
       }
 
       // Validar que todos los cursos tengan datos válidos
-      const cursosInvalidos = dto.semesters.flatMap(sem => 
-        sem.courses.filter(c => !c.courseApiId || c.credits === undefined)
+      const cursosInvalidos = dto.semesters.flatMap((sem) =>
+        sem.courses.filter((c) => !c.courseApiId || c.credits === undefined),
       );
 
       if (cursosInvalidos.length > 0) {
         console.error('Cursos inválidos detectados:', cursosInvalidos);
-        throw new BadRequestException('Hay cursos con datos inválidos en la proyección');
+        throw new BadRequestException(
+          'Hay cursos con datos inválidos en la proyección',
+        );
       }
 
       console.log('Creando proyección en la base de datos...');
@@ -212,30 +221,29 @@ export class ProjectionsService {
           isFavorite: dto.isFavorite,
           isAutomatic: dto.isAutomatic,
           courses: {
-            create: dto.semesters.flatMap(semester => 
-              semester.courses.map(course => ({
+            create: dto.semesters.flatMap((semester) =>
+              semester.courses.map((course) => ({
                 courseApiId: course.courseApiId,
                 semesterNumber: semester.numero,
-                credits: course.credits
-              }))
-            )
-          }
+                credits: course.credits,
+              })),
+            ),
+          },
         },
         include: {
-          courses: true
-        }
+          courses: true,
+        },
       });
 
       console.log('Proyección creada exitosamente:', projection.id);
       return projection;
-
     } catch (error) {
       console.error('Error al crear proyección:', error);
-      
+
       if (error instanceof BadRequestException) {
         throw error;
       }
-      
+
       // Log más detallado del error
       if (error.code) {
         console.error('Código de error Prisma:', error.code);
@@ -243,15 +251,17 @@ export class ProjectionsService {
       if (error.meta) {
         console.error('Metadata del error:', error.meta);
       }
-      
-      throw new BadRequestException(`Error al crear proyección: ${error.message}`);
+
+      throw new BadRequestException(
+        `Error al crear proyección: ${error.message}`,
+      );
     }
   }
 
   async actualizarProyeccion(dto: ActualizarProyeccionDto) {
     const proyeccion = await this.prisma.projection.findUnique({
       where: { id: dto.id },
-      include: { student: true }
+      include: { student: true },
     });
 
     if (!proyeccion) {
@@ -281,17 +291,17 @@ export class ProjectionsService {
     // Si hay nuevos semestres, eliminar los antiguos y crear los nuevos
     if (dto.semesters !== undefined) {
       await this.prisma.projectionCourse.deleteMany({
-        where: { projectionId: dto.id }
+        where: { projectionId: dto.id },
       });
 
       dataToUpdate.courses = {
-        create: dto.semesters.flatMap(semester => 
-          semester.courses.map(course => ({
+        create: dto.semesters.flatMap((semester) =>
+          semester.courses.map((course) => ({
             courseApiId: course.courseApiId,
             semesterNumber: semester.numero,
-            credits: course.credits
-          }))
-        )
+            credits: course.credits,
+          })),
+        ),
       };
     }
 
@@ -299,8 +309,8 @@ export class ProjectionsService {
       where: { id: dto.id },
       data: dataToUpdate,
       include: {
-        courses: true
-      }
+        courses: true,
+      },
     });
   }
 
