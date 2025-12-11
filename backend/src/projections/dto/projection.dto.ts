@@ -1,4 +1,13 @@
-import { IsString, IsBoolean, IsArray, IsNotEmpty, ValidateNested, IsNumber, IsOptional, Min } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsArray,
+  IsNotEmpty,
+  ValidateNested,
+  IsNumber,
+  IsOptional,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CourseInSemesterDto {

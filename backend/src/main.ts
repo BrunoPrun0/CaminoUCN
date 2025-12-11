@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log('🔍 DATABASE_URL del backend:', process.env.DATABASE_URL);
+  console.log('Conectando a la Base de Datos');
   app.enableCors({
     origin: '*', // frontend
     credentials: true,

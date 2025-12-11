@@ -1,4 +1,5 @@
-// api-externa.controller.ts
+// correr test
+// npm run test api-externa.controller.spec.ts
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiExternaService } from './api-externa.service';
 
@@ -13,24 +14,24 @@ export class ApiExternaController {
 
   @Post('progreso')
   async getProgreso(
-    @Body() body: { codCarrera: string; catalogo: string; rut: string }
+    @Body() body: { codCarrera: string; catalogo: string; rut: string },
   ) {
-    console.log('📥 Controller recibió:', body);
-    
+    console.log('Controller recibió:', body);
+
     const resultado = await this.apiExternaService.getProgreso(
       body.codCarrera,
       body.catalogo,
-      body.rut
+      body.rut,
     );
-    
-    // 🔍 DEBUG: Ver qué va a retornar el controller
-    console.log('📤 Controller va a retornar:', {
+
+    // DEBUG: Ver qué va a retornar el controller
+    console.log('Controller va a retornar:', {
       tieneInscripciones: 'inscripciones' in resultado,
       cantidadInscripciones: resultado.inscripciones?.length || 0,
       primeraInscripcion: resultado.inscripciones?.[0],
-      cantidadProgreso: resultado.progreso?.length || 0
+      cantidadProgreso: resultado.progreso?.length || 0,
     });
-    
+
     return resultado;
   }
 }

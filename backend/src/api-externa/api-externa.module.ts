@@ -4,6 +4,6 @@ import { ApiExternaService } from './api-externa.service';
 
 @Module({
   controllers: [ApiExternaController],
-  providers: [ApiExternaService]
+  providers: [ApiExternaService],
 })
 export class ApiExternaModule {}

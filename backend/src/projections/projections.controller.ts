@@ -1,6 +1,19 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ProjectionsService } from './projections.service';
-import { CrearProyeccionDto, ActualizarProyeccionDto } from './dto/projection.dto';
+import {
+  CrearProyeccionDto,
+  ActualizarProyeccionDto,
+} from './dto/projection.dto';
 
 @Controller('projections')
 export class ProjectionsController {
