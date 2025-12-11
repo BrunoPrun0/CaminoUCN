@@ -24,7 +24,7 @@ function Login(){
                 alert('Login fallido');
             }
         } catch (error) {
-            alert('Credenciales incorrectas o error en la API externa');
+            alert('Credenciales incorrectas o error en el servidor');
         }
 
             
