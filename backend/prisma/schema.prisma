@@ -45,6 +45,7 @@ model ProjectionCourse {
   id            Int      @id @default(autoincrement())
   projectionId  Int
   courseApiId   String   // Código del curso 
+  courseName     String?
   semesterNumber Int     // Número de semestre en la proyección 
   credits       Int      // Créditos del curso (para cálculos rápidos)
   createdAt     DateTime @default(now())

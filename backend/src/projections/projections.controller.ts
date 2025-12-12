@@ -57,4 +57,9 @@ export class ProjectionsController {
     console.log('📥 Marcando como favorita:', id);
     return this.projectionsService.marcarComoFavorita(id);
   }
+
+  @Get('dashboard/stats') 
+  async getDashboardStats() {
+    return this.projectionsService.obtenerEstadisticasDashboard();
+  }
 }

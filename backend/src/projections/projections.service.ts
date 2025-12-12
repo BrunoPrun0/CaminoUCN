@@ -224,6 +224,7 @@ export class ProjectionsService {
             create: dto.semesters.flatMap((semester) =>
               semester.courses.map((course) => ({
                 courseApiId: course.courseApiId,
+                courseName: course.nombre || course.courseApiId,
                 semesterNumber: semester.numero,
                 credits: course.credits,
               })),
@@ -298,6 +299,7 @@ export class ProjectionsService {
         create: dto.semesters.flatMap((semester) =>
           semester.courses.map((course) => ({
             courseApiId: course.courseApiId,
+            courseName: course.nombre || course.courseApiId,
             semesterNumber: semester.numero,
             credits: course.credits,
           })),
@@ -355,4 +357,34 @@ export class ProjectionsService {
       data: { isFavorite: true },
     });
   }
+
+//para demanda (solo admi)
+  async obtenerEstadisticasDashboard() {
+    // Prisma agrupa por código de curso Y nombre para poder acceder a ambos datos
+    const stats = await this.prisma.projectionCourse.groupBy({
+      by: ['courseApiId', 'courseName'], 
+      where: {
+        semesterNumber: 1, // Solo el próximo semestre
+        projection: {
+          isFavorite: true, // Solo proyecciones favoritas
+        },
+      },
+      _count: {
+        courseApiId: true, 
+      },
+      orderBy: {
+        _count: {
+          courseApiId: 'desc', // Los más pedidos primero
+        },              
+      },
+      take: 10,
+    });
+
+    return stats.map((item) => ({
+      codigo: item.courseApiId,
+      nombre: item.courseName || item.courseApiId,
+      // Versión segura para evitar crasheos si Prisma se marea
+      interesados: item._count ? item._count.courseApiId : 0, 
+    }));
+}
 }

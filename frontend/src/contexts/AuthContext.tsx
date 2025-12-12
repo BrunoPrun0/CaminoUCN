@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 type Usuario = {
   rut: string;
   carreras: Carrera[]; 
+  rol?: 'ADMIN' | 'STUDENT';
 };
 
 type AuthContextType = {

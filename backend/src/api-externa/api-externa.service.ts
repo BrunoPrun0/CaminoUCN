@@ -1,5 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
+
+ const ADMIN_MOCK_CREDENTIALS = {
+  email: 'admin@ucn.cl',      // Pon aquí el correo de ejemplo que te dieron
+  password: 'password123'     // Pon aquí la contraseña de ejemplo
+}
 @Injectable()
 export class ApiExternaService {
   async getProgreso(codCarrera: string, catalogo: string, rut: string) {
@@ -158,7 +163,22 @@ export class ApiExternaService {
     }
   }
 
-  async login(email: string, password: string) {
+ 
+
+async login(email: string, password: string) {
+    // 1. INTERCEPCIÓN (MOCK): ¿Es el usuario administrador simulado?
+    if (email === ADMIN_MOCK_CREDENTIALS.email && password === ADMIN_MOCK_CREDENTIALS.password) {
+      console.log('Iniciando sesión simulada de ADMIN');
+      return {
+        rut: '99.999.999-K',      
+        nombre: 'Director de Carrera',
+        carreras: [{ codigo: 'ICCI', nombre: 'Ingeniería Civil en Computación', catalogo: '2020' }],
+        rol: 'ADMIN'              
+      };
+      return;
+    }
+
+    // 2. FLUJO NORMAL: Si no es el admin, vamos a la API real para los estudiantes
     try {
       const data = await fetch(
         `https://puclaro.ucn.cl/eross/avance/login.php?email=${email}&password=${password}`,
@@ -169,17 +189,19 @@ export class ApiExternaService {
         throw new BadRequestException('Error ' + studentData.error);
       }
 
-      return studentData;
+      // Los usuarios normales que vienen de la API son STUDENT por defecto
+      return {
+        ...studentData,
+        rol: 'STUDENT'
+      };
+      
     } catch (err) {
       console.error('Error en login:', err);
 
-      // Re-throw BadRequestException as-is
       if (err instanceof BadRequestException) {
         throw err;
       }
-
-      // For other errors, throw generic error
       throw new Error('Error al conectar con la API externa');
     }
-  }
+}
 }

@@ -15,6 +15,10 @@ export class CourseInSemesterDto {
   @IsNotEmpty()
   courseApiId: string;
 
+  @IsString()
+  @IsNotEmpty()
+  nombre: string;
+
   @IsNumber()
   @Min(0)
   credits: number;

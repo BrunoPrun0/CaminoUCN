@@ -237,13 +237,14 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     try {
       const proyeccionAGuardar = esAutomatica ? proyeccionAutomatica : proyeccionManual;
       
-      // Convertir formato al esperado por el backend
-      const semesters = proyeccionAGuardar.map(sem => ({
+     const semesters = proyeccionAGuardar.map(sem => ({
         numero: sem.numero,
         courses: sem.asignaturas.map(codigo => {
           const asig = progreso.find(a => a.codigo === codigo);
+          
           return {
             courseApiId: codigo,
+            nombre: asig?.asignatura || codigo, 
             credits: asig?.creditos || 0
           };
         })

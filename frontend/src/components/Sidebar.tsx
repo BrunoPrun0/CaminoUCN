@@ -4,43 +4,57 @@ type MenuItem = {
   icon: string;
 };
 
+// 1. Agregamos 'rol' a las props (opcional para que no rompa si no llega)
 type SidebarProps = {
   paginaActual: string;
   onPageChange: (page: string) => void;
   onLogout: () => void;
+  rol?: 'ADMIN' | 'STUDENT'; 
 };
 
-const menuItems: MenuItem[] = [
+// 2. Definimos el menú normal (Estudiante)
+const menuEstudiante: MenuItem[] = [
   { key: "inicio", label: "Inicio", icon: "fi fi-rr-home" },
-  { key: "malla", label: "Mi Malla", icon: "fi fi-rr-ballot" }, // no se ve
-  {
-    key: "proyecciones",
-    label: "Proyecciones",
-    icon: "fi fi-rr-chart-histogram",
-  },
-  { key: "perfil", label: "Perfil", icon: "fi fi-rr-user-graduate" }, // no se ve
+  { key: "malla", label: "Mi Malla", icon: "fi fi-rr-ballot" },
+  { key: "proyecciones", label: "Proyecciones", icon: "fi fi-rr-chart-histogram" },
+  { key: "perfil", label: "Perfil", icon: "fi fi-rr-user-graduate" },
+];
+
+// 3. Definimos el menú nuevo (Admin)
+const menuAdmin: MenuItem[] = [
+  // Usamos iconos similares. Si no tienes 'stats', reutiliza 'chart-histogram'
+  { key: "dashboard", label: "Estadisticas", icon: "fi fi-rr-stats" }, 
+  { key: "perfil", label: "Mi Perfil", icon: "fi fi-rr-user" },
 ];
 
 export function Sidebar({
   paginaActual,
   onPageChange,
   onLogout,
+  rol // 4. Recibimos el rol
 }: SidebarProps) {
+
+  // 5. Lógica de selección: ¿Qué lista mostramos?
+  const itemsAMostrar = rol === 'ADMIN' ? menuAdmin : menuEstudiante;
+
   return (
     <nav className="fixed left-0 top-0 h-full w-16 hover:w-64 bg-gray-900 text-white transition-all duration-300 z-50 group">
       {/* Logo CAMINO */}
       <div className="p-4 border-b border-gray-700">
         <div className="flex items-center space-x-3">
-          <span className="text-2xl">🏞</span>
+          <span className="text-2xl">
+            {/* Opcional: Cambiar icono si es admin */}
+          🏞
+          </span>
           <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xl font-bold whitespace-nowrap">
-            CAMINO
+            Camino
           </span>
         </div>
       </div>
 
-      {/* Items del Menú */}
+      {/* Items del Menú (Dinamicos) */}
       <ul className="space-y-2 p-4">
-        {menuItems.map((item) => (
+        {itemsAMostrar.map((item) => (
           <li key={item.key}>
             <button
               onClick={() => onPageChange(item.key)}
