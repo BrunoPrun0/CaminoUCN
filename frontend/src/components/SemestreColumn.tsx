@@ -112,7 +112,6 @@ export function SemestreColumn({
             <div className="text-center text-gray-400 text-sm mt-8">
               {isDraggable ? (
                 <>
-                  <div className="text-4xl mb-2">📚</div>
                   <p>Arrastra asignaturas aquí</p>
                 </>
               ) : (
