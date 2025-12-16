@@ -54,7 +54,7 @@ export function SemestreColumn({
   return (
     <div className="flex flex-col h-full">
       {/* Header del semestre */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-t-lg shadow-md">
+      <div className="bg-gray-100 text-black p-3 rounded-t-lg shadow-md">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-bold text-sm">Semestre {numero}</h3>
           {esManual && asignaturas.length === 0 && onEliminar && (

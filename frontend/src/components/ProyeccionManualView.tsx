@@ -97,7 +97,7 @@ export function ProyeccionManualView() {
             </button>
             <button
               onClick={() => setShowSaveModal(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
+              className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
             >
               <i className="fi fi-rr-disk"></i> Guardar
             </button>
@@ -149,7 +149,7 @@ export function ProyeccionManualView() {
 
       {/* Instrucciones */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-bold text-blue-800 mb-2">💡 Instrucciones:</h3>
+        <h3 className="font-bold text-blue-800 mb-2"> Instrucciones:</h3>
         <ul className="text-sm text-blue-700 space-y-1">
           <li>• Arrastra las asignaturas entre semestres para reorganizar tu plan</li>
           <li>• Máximo 32 créditos por semestre</li>
@@ -210,12 +210,12 @@ export function ProyeccionManualView() {
                   className="mr-2"
                 />
                 <label htmlFor="favorita-manual" className="text-sm text-gray-700">
-                  Marcar como favorita ⭐
+                  Marcar como favorita
                 </label>
               </div>
 
               <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800">
-                💾 Solo puedes tener hasta 3 proyecciones guardadas
+                Solo puedes tener hasta 3 proyecciones guardadas
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -228,7 +228,7 @@ export function ProyeccionManualView() {
                 </button>
                 <button
                   onClick={handleGuardar}
-                  className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400"
+                  className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors disabled:bg-gray-400"
                   disabled={guardando}
                 >
                   {guardando ? 'Guardando...' : 'Guardar'}

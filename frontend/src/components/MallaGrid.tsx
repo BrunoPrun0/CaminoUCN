@@ -26,23 +26,41 @@ const toRoman = (numStr: string | number) => {
 export function MallaGrid({ asignaturasPorSemestre }: MallaGridProps) {
   const numSemestres = Object.keys(asignaturasPorSemestre).length;
   
-  // Ancho de la columna y espacio entre columnas
-  const anchoColumna = 224;
-  const anchoGap = 16;
+  // Calcula el número total de columnas para la cuadrícula
+  const totalColumns = numSemestres;
   
-  // Cálculo del ancho total
-  const totalWidth = (numSemestres * anchoColumna) + (Math.max(0, numSemestres - 1) * anchoGap);
-  const containerWidth = `${totalWidth + 20}px`;
+  // Generamos el estilo CSS para la cuadrícula: grid-template-columns: repeat(10, minmax(0, 1fr));
+  // Usamos una utilidad inline para asegurar que el número de columnas sea dinámico.
+  const gridStyle = {
+    gridTemplateColumns: `repeat(${totalColumns}, minmax(0, 1fr))`,
+  };
+
 
   return (
-    <div className="overflow-x-auto pb-4">
-      <div className="flex gap-4 mt-6" style={{ minWidth: containerWidth }}>
+    // Eliminamos el overflow-x-auto, ya que no queremos scroll.
+    // Usamos p-4 en móvil y desktop para dar espacio.
+    <div className="pb-4 pt-4 px-4"> 
+      
+      {/* 1. Cambiamos de 'flex' a 'grid'.
+        2. Usamos 'gap-4' para el espaciado.
+        3. Aplicamos el 'gridStyle' dinámico.
+        4. Opcional: En pantallas grandes (lg), podríamos forzar un ancho máximo si es necesario.
+      */}
+      <div 
+        className="grid gap-4 mt-6" 
+        style={gridStyle} // Aplica grid-template-columns: repeat(N, 1fr);
+      >
         {Object.entries(asignaturasPorSemestre).map(([nivel, asignaturas]) => (
-          <div key={nivel} className="bg-white rounded p-4 flex-shrink-0 w-56">
-            <h3 className="text-xl font-extrabold text-gray-700 mb-4 text-center">
+          <div 
+            key={nivel} 
+            // 5. Eliminamos w-56, flex-shrink-0, y min-w-max. 
+            // Tailwind ya tiene clases grid-column-span-1 implícitas.
+            className="bg-white rounded p-4 shadow-lg border border-gray-100"
+          >
+            <h3 className="text-sm font-bold text-gray-700 mb-2 text-center">
               Semestre {toRoman(nivel)}
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {asignaturas.map((asig) => (
                 <AsignaturaCard key={asig.codigo} asignatura={asig} />
               ))}

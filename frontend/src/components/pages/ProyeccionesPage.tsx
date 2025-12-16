@@ -71,7 +71,7 @@ export function ProyeccionesPage() {
               onClick={() => setTabActiva('automatica')}
               className={`flex-1 py-3 px-6 rounded-md font-semibold transition-all flex items-center justify-center gap-2 ${
                 tabActiva === 'automatica'
-                  ? 'bg-blue-500 text-white shadow-md'
+                  ? 'bg-gray-900 text-white shadow-md'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -82,7 +82,7 @@ export function ProyeccionesPage() {
               onClick={() => setTabActiva('manual')}
               className={`flex-1 py-3 px-6 rounded-md font-semibold transition-all flex items-center justify-center gap-2 ${
                 tabActiva === 'manual'
-                  ? 'bg-blue-500 text-white shadow-md'
+                  ? 'bg-gray-900 text-white shadow-md'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -93,7 +93,7 @@ export function ProyeccionesPage() {
               onClick={() => setTabActiva('guardadas')}
               className={`flex-1 py-3 px-6 rounded-md font-semibold transition-all relative flex items-center justify-center gap-2 ${
                 tabActiva === 'guardadas'
-                  ? 'bg-blue-500 text-white shadow-md'
+                  ? 'bg-gray-900 text-white shadow-md'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
