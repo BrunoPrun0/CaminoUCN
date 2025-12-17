@@ -11,7 +11,7 @@ export class ApiExternaController {
   async login(@Body() body: { email: string; password: string }) {
     return this.apiExternaService.login(body.email, body.password);
   }
-
+  // cambiar a get
   @Post('progreso')
   async getProgreso(
     @Body() body: { codCarrera: string; catalogo: string; rut: string },

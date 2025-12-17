@@ -58,8 +58,14 @@ export class ProjectionsController {
     return this.projectionsService.marcarComoFavorita(id);
   }
 
-  @Get('dashboard/stats') 
-  async getDashboardStats() {
-    return this.projectionsService.obtenerEstadisticasDashboard();
+  @Get('dashboard/careers')
+  async getActiveCareers() {
+    return this.projectionsService.obtenerCarrerasActivas();
+  }
+
+  // Endpoint para el gráfico (recibe ?careerCode=XYZ opcional)
+  @Get('dashboard/stats')
+  async getDashboardStats(@Query('careerCode') careerCode?: string) {
+    return this.projectionsService.obtenerEstadisticasDashboard(careerCode);
   }
 }

@@ -73,7 +73,7 @@ export class ApiExternaService {
         });
 
       console.log(
-        '📊 Estados procesados:',
+        'Estados procesados:',
         estadosPorCodigo.size,
         'cursos únicos',
       );

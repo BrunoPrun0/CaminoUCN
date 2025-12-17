@@ -359,32 +359,67 @@ export class ProjectionsService {
   }
 
 //para demanda (solo admi)
-  async obtenerEstadisticasDashboard() {
-    // Prisma agrupa por código de curso Y nombre para poder acceder a ambos datos
-    const stats = await this.prisma.projectionCourse.groupBy({
-      by: ['courseApiId', 'courseName'], 
-      where: {
-        semesterNumber: 1, // Solo el próximo semestre
-        projection: {
-          isFavorite: true, // Solo proyecciones favoritas
-        },
-      },
-      _count: {
-        courseApiId: true, 
-      },
-      orderBy: {
-        _count: {
-          courseApiId: 'desc', // Los más pedidos primero
-        },              
-      },
-      // take: 10,
+ async obtenerCarrerasActivas() {
+    const carreras = await this.prisma.projection.findMany({
+      where: { isFavorite: true },
+      distinct: ['careerCode'],
+      select: { careerCode: true },
     });
 
-    return stats.map((item) => ({
-      codigo: item.courseApiId,
-      nombre: item.courseName || item.courseApiId,
-      // Versión segura para evitar crasheos si Prisma se marea
-      interesados: item._count ? item._count.courseApiId : 0, 
+    // Retornamos directamente lo que hay en la BD
+    return carreras.map((c) => ({
+      codigo: c.careerCode,
+      nombre: c.careerCode, // Usamos el código como nombre ya que no tienes tabla de Carreras
     }));
+  }
+
+  // 2. ESTADÍSTICAS DASHBOARD (Corregido Semestre 1 + Nombres Reales)
+  async obtenerEstadisticasDashboard(careerCode?: string) {
+    const filtro: any = { isFavorite: true };
+
+    if (careerCode && careerCode !== 'general') {
+      filtro.careerCode = careerCode;
+    }
+
+    // PASO 1: Contar usando SOLO el código (para evitar duplicados por nombres mal escritos)
+    // Y filtramos ESTRICTAMENTE por semesterNumber: 1
+    const conteo = await this.prisma.projectionCourse.groupBy({
+      by: ['courseApiId'],
+      where: {
+        semesterNumber: 1, // <--- ESTO ARREGLA QUE NO SALGAN RAMOS DE OTROS SEMESTRES
+        projection: filtro,
+      },
+      _count: { courseApiId: true },
+      orderBy: {
+        _count: { courseApiId: 'desc' },
+      },
+      take: 20,
+    });
+
+    if (conteo.length === 0) return [];
+
+    // PASO 2: Obtener los nombres reales de esos códigos desde la BD
+    const codigos = conteo.map(c => c.courseApiId);
+    
+    const nombresReales = await this.prisma.projectionCourse.findMany({
+      where: {
+        courseApiId: { in: codigos },
+        courseName: { not: null }, // Buscamos registros que sí tengan nombre
+      },
+      distinct: ['courseApiId'], // Solo necesitamos un nombre por código
+      select: { courseApiId: true, courseName: true }
+    });
+
+    // PASO 3: Unir el conteo con el nombre encontrado
+    return conteo.map((item) => {
+      const infoNombre = nombresReales.find(n => n.courseApiId === item.courseApiId);
+      
+      return {
+        codigo: item.courseApiId,
+        nombre: infoNombre?.courseName || item.courseApiId, // Si no hay nombre, muestra el código
+        interesados: item._count.courseApiId,
+      };
+    });
+  }
 }
-}
+

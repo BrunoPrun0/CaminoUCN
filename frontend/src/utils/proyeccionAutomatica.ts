@@ -242,21 +242,21 @@ export function puedeAgregarAsignatura(
       };
     }
 
-    // Verificar que sea el último semestre con asignaturas
-    const maxSemestreConCursos = Math.max(
-      ...semestresProyectados
-        .filter((s) => s.asignaturas.length > 0)
-        .map((s) => s.numero),
-      numeroSemestreDestino
-    );
-    const haySemestrePosteriorConCursos = semestresProyectados.some(
-      (s) => s.numero > numeroSemestreDestino && s.asignaturas.length > 0
-    );
+    // Verificar que NO haya semestres posteriores con OTROS ramos (no-Capstone)
+    const haySemestrePosteriorConOtrosRamos = semestresProyectados.some((s) => {
+      if (s.numero <= numeroSemestreDestino) return false;
+      
+      // Verificar si tiene ramos que NO sean Capstone
+      return s.asignaturas.some((cod) => {
+        const asig = progreso.find((a) => a.codigo === cod);
+        return asig && !esCapstone(asig);
+      });
+    });
 
-    if (haySemestrePosteriorConCursos || numeroSemestreDestino < maxSemestreConCursos) {
+    if (haySemestrePosteriorConOtrosRamos) {
       return {
         valido: false,
-        razon: 'El Capstone Project debe ser el último semestre de tu plan',
+        razon: 'El Capstone Project no puede tener otros ramos en semestres posteriores',
       };
     }
 
@@ -375,6 +375,60 @@ export function puedeAgregarAsignatura(
         razon: `Excede dispersión máxima de ${MAX_DISPERSION_NIVELES} niveles`,
       };
     }
+  }
+
+  return { valido: true };
+}
+
+// Nueva función: Validar eliminación de semestre
+export function puedeEliminarSemestre(
+  numeroSemestre: number,
+  semestresProyectados: SemestreProyectado[],
+  progreso: Asignatura[]
+): { valido: boolean; razon?: string } {
+  const semestre = semestresProyectados.find(s => s.numero === numeroSemestre);
+  
+  if (!semestre) {
+    return { valido: false, razon: 'Semestre no encontrado' };
+  }
+
+  // Verificar si el semestre actual tiene el Capstone
+  const tieneCapstone = semestre.asignaturas.some((cod) => {
+    const asig = progreso.find((a) => a.codigo === cod);
+    return asig && esCapstone(asig);
+  });
+
+  if (tieneCapstone) {
+    // Si tiene Capstone, miramos el semestre anterior
+    const semestreAnterior = semestresProyectados.find(
+      s => s.numero === numeroSemestre - 1
+    );
+
+    if (!semestreAnterior) {
+      return { 
+        valido: false, 
+        razon: 'No se puede eliminar el semestre inicial del Capstone' 
+      };
+    }
+
+    // REGLA DE ORO: El semestre anterior DEBE estar vacío para recibir el Capstone
+    if (semestreAnterior.asignaturas.length > 0) {
+      return {
+        valido: false,
+        razon: 'Debes vaciar el semestre anterior antes de eliminar este, para que el Capstone pueda volver.'
+      };
+    }
+    
+    // Si el anterior está vacío, es válido eliminar este.
+    return { valido: true };
+  }
+
+  // Si NO tiene Capstone, solo se puede borrar si está vacío
+  if (semestre.asignaturas.length > 0) {
+    return {
+      valido: false,
+      razon: 'El semestre debe estar vacío para eliminarlo (o contener solo el Capstone con el anterior vacío).'
+    };
   }
 
   return { valido: true };

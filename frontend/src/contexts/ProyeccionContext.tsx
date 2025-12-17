@@ -2,9 +2,23 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useMalla } from './MallaContext';
-import { calcularProyeccionAutomatica, puedeAgregarAsignatura } from '../utils/proyeccionAutomatica';
+import { calcularProyeccionAutomatica, puedeAgregarAsignatura, puedeEliminarSemestre } from '../utils/proyeccionAutomatica';
 import * as proyeccionService from '../services/proyeccionesService';
 
+// ... (Tus types Asignatura, SemestreProyectado, etc. se mantienen igual, no los borres si están en otro archivo, 
+// si están aquí arriba, déjalos igual).
+
+// SI TIENES LOS TYPES AQUÍ, DÉJALOS AQUÍ. SI NO, IMPORTALOS.
+// Voy a asumir que los types están definidos o importados correctamente.
+type Asignatura = {
+  codigo: string;
+  asignatura: string;
+  creditos: number;
+  estado: string;
+  nivel: number;
+  prereq: string[];
+  veces_cursado: number;
+};
 
 type SemestreProyectado = {
   numero: number;
@@ -32,30 +46,15 @@ type ProyeccionGuardada = {
 };
 
 type ProyeccionContextType = {
-  // Proyección automática
   proyeccionAutomatica: SemestreProyectado[];
   calcularAutomatica: () => void;
-  
-  // Proyección manual
   proyeccionManual: SemestreProyectado[];
   setProyeccionManual: (proyeccion: SemestreProyectado[]) => void;
-  moverAsignatura: (
-    codigoAsignatura: string,
-    semestreOrigen: number,
-    semestreDestino: number
-  ) => { exito: boolean; mensaje?: string };
-  removerAsignaturaDeSemestre: (    
-    codigoAsignatura: string,
-    semestreOrigen: number
-  ) => { exito: boolean; mensaje?: string };
-  agregarAsignaturaASemestre: (     
-    codigoAsignatura: string,
-    semestreDestino: number
-  ) => { exito: boolean; mensaje?: string };
+  moverAsignatura: (codigo: string, origen: number, destino: number) => { exito: boolean; mensaje?: string };
+  removerAsignaturaDeSemestre: (codigo: string, origen: number) => { exito: boolean; mensaje?: string };
+  agregarAsignaturaASemestre: (codigo: string, destino: number) => { exito: boolean; mensaje?: string };
   agregarSemestre: () => void;
   eliminarSemestre: (numero: number) => void;
-  
-  // Proyecciones guardadas
   proyeccionesGuardadas: ProyeccionGuardada[];
   proyeccionSeleccionada: ProyeccionGuardada | null;
   cargarProyeccion: (id: number) => Promise<void>;
@@ -63,12 +62,19 @@ type ProyeccionContextType = {
   eliminarProyeccionGuardada: (id: number) => Promise<void>;
   marcarFavorita: (id: number) => Promise<void>;
   recargarProyecciones: () => Promise<void>;
-  
   loading: boolean;
   error: string | null;
 };
 
 const ProyeccionContext = createContext<ProyeccionContextType | undefined>(undefined);
+
+function esCapstone(asignatura: Asignatura): boolean {
+  const CAPSTONE_CODE = 'ECIN-0100';
+  const CAPSTONE_NAME = 'Capstone Project';
+  return asignatura.codigo === CAPSTONE_CODE || 
+         asignatura.asignatura === CAPSTONE_NAME ||
+         asignatura.asignatura.toLowerCase().includes('capstone project');
+}
 
 export function ProyeccionProvider({ children }: { children: ReactNode }) {
   const { usuario } = useAuth();
@@ -81,22 +87,21 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Calcular proyección automática
+  // 1. CORRECCIÓN CRÍTICA AQUÍ: Separar las referencias
   const calcularAutomatica = () => {
     if (progreso.length === 0) return;
     
     console.log('Calculando proyección automática...');
     const proyeccion = calcularProyeccionAutomatica(progreso);
+    
+    // Guardamos la automática
     setProyeccionAutomatica(proyeccion);
     
-    // Inicializar proyección manual con la automática
-    if (proyeccionManual.length === 0) {
-      setProyeccionManual(proyeccion);
-    }
-    setProyeccionManual(proyeccion);
+    // CORRECCIÓN: Usamos JSON parse/stringify para crear una COPIA PROFUNDA.
+    // Esto rompe el vínculo. Modificar la manual YA NO tocará la automática.
+    setProyeccionManual(JSON.parse(JSON.stringify(proyeccion)));
   };
 
-  // Mover asignatura en proyección manual
   const moverAsignatura = (
     codigoAsignatura: string,
     semestreOrigen: number,
@@ -104,22 +109,16 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
   ): { exito: boolean; mensaje?: string } => {
     
     const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
-    if (!asignatura) {
-      return { exito: false, mensaje: 'Asignatura no encontrada' };
-    }
+    if (!asignatura) return { exito: false, mensaje: 'Asignatura no encontrada' };
 
-    // Crear copia de la proyección manual
-    const nuevaProyeccion = [...proyeccionManual];
+    // Copia profunda para asegurar inmutabilidad
+    const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
     
-    // Encontrar semestre origen y destino
-    const semOrigen = nuevaProyeccion.find(s => s.numero === semestreOrigen);
-    const semDestino = nuevaProyeccion.find(s => s.numero === semestreDestino);
+    const semOrigen = nuevaProyeccion.find((s: SemestreProyectado) => s.numero === semestreOrigen);
+    const semDestino = nuevaProyeccion.find((s: SemestreProyectado) => s.numero === semestreDestino);
     
-    if (!semOrigen || !semDestino) {
-      return { exito: false, mensaje: 'Semestre no encontrado' };
-    }
+    if (!semOrigen || !semDestino) return { exito: false, mensaje: 'Semestre no encontrado' };
 
-    // Validar si se puede mover
     const validacion = puedeAgregarAsignatura(
       codigoAsignatura,
       semDestino,
@@ -128,12 +127,9 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
       semestreDestino
     );
 
-    if (!validacion.valido) {
-      return { exito: false, mensaje: validacion.razon };
-    }
+    if (!validacion.valido) return { exito: false, mensaje: validacion.razon };
 
-    // Realizar el movimiento
-    semOrigen.asignaturas = semOrigen.asignaturas.filter(c => c !== codigoAsignatura);
+    semOrigen.asignaturas = semOrigen.asignaturas.filter((c: string) => c !== codigoAsignatura);
     semOrigen.creditos -= asignatura.creditos;
     
     semDestino.asignaturas.push(codigoAsignatura);
@@ -143,45 +139,137 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     return { exito: true };
   };
 
-  // Agregar nuevo semestre
-  const agregarSemestre = () => {
-    const nuevoNumero = proyeccionManual.length > 0 
-      ? Math.max(...proyeccionManual.map(s => s.numero)) + 1 
-      : 1;
+  const removerAsignaturaDeSemestre = (
+    codigoAsignatura: string,
+    semestreOrigen: number
+  ): { exito: boolean; mensaje?: string } => {
+    const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
+    if (!asignatura) return { exito: false, mensaje: 'Asignatura no encontrada' };
+
+    const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
+    const semOrigen = nuevaProyeccion.find((s: SemestreProyectado) => s.numero === semestreOrigen);
     
-    setProyeccionManual([
-      ...proyeccionManual,
-      { numero: nuevoNumero, asignaturas: [], creditos: 0 }
-    ]);
+    if (!semOrigen) return { exito: false, mensaje: 'Semestre no encontrado' };
+
+    semOrigen.asignaturas = semOrigen.asignaturas.filter((c: string) => c !== codigoAsignatura);
+    semOrigen.creditos -= asignatura.creditos;
+
+    setProyeccionManual(nuevaProyeccion);
+    return { exito: true };
   };
 
-  // Eliminar semestre
+  const agregarAsignaturaASemestre = (
+    codigoAsignatura: string,
+    semestreDestino: number
+  ): { exito: boolean; mensaje?: string } => {
+    const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
+    if (!asignatura) return { exito: false, mensaje: 'Asignatura no encontrada' };
+
+    const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
+    const semDestino = nuevaProyeccion.find((s: SemestreProyectado) => s.numero === semestreDestino);
+    
+    if (!semDestino) return { exito: false, mensaje: 'Semestre no encontrado' };
+
+    const validacion = puedeAgregarAsignatura(
+      codigoAsignatura,
+      semDestino,
+      progreso,
+      nuevaProyeccion,
+      semestreDestino
+    );
+
+    if (!validacion.valido) return { exito: false, mensaje: validacion.razon };
+
+    semDestino.asignaturas.push(codigoAsignatura);
+    semDestino.creditos += asignatura.creditos;
+
+    setProyeccionManual(nuevaProyeccion);
+    return { exito: true };
+  };
+
+  // 2. CORRECCIÓN: Agregar semestre seguro
+  const agregarSemestre = () => {
+    const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
+    const ultimoSemestre = nuevaProyeccion[nuevaProyeccion.length - 1];
+    
+    const nuevoNumero = ultimoSemestre ? ultimoSemestre.numero + 1 : 1;
+    
+    const nuevoSemestre: SemestreProyectado = { 
+      numero: nuevoNumero, 
+      asignaturas: [], 
+      creditos: 0 
+    };
+
+    if (ultimoSemestre) {
+      const codigoCapstone = ultimoSemestre.asignaturas.find((cod: string) => {
+        const asig = progreso.find(a => a.codigo === cod);
+        return asig && esCapstone(asig);
+      });
+
+      if (codigoCapstone) {
+        const asigCapstone = progreso.find(a => a.codigo === codigoCapstone);
+        const creditos = asigCapstone?.creditos || 0;
+
+        ultimoSemestre.asignaturas = ultimoSemestre.asignaturas.filter((c: string) => c !== codigoCapstone);
+        ultimoSemestre.creditos -= creditos;
+
+        nuevoSemestre.asignaturas.push(codigoCapstone);
+        nuevoSemestre.creditos += creditos;
+      }
+    }
+
+    setProyeccionManual([...nuevaProyeccion, nuevoSemestre]);
+  };
+
+  // 3. CORRECCIÓN: Eliminar semestre con la lógica arreglada
   const eliminarSemestre = (numero: number) => {
-    // No permitir eliminar si tiene asignaturas
-    const semestre = proyeccionManual.find(s => s.numero === numero);
-    if (semestre && semestre.asignaturas.length > 0) {
-      setError('No puedes eliminar un semestre con asignaturas');
+    // IMPORTANTE: Ahora que las referencias están separadas, proyeccionAutomatica.length
+    // NO cambiará cuando agregues semestres manuales. Esto arregla el botón de borrar.
+    if (numero <= proyeccionAutomatica.length) {
+      setError('No puedes eliminar los semestres base de la proyección automática.');
       setTimeout(() => setError(null), 3000);
       return;
     }
 
-    setProyeccionManual(proyeccionManual.filter(s => s.numero !== numero));
+    const validacion = puedeEliminarSemestre(numero, proyeccionManual, progreso);
+    
+    if (!validacion.valido) {
+      setError(validacion.razon || 'No se puede eliminar este semestre');
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
+    const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
+    const indiceAEliminar = nuevaProyeccion.findIndex((s: SemestreProyectado) => s.numero === numero);
+    const semestreAEliminar = nuevaProyeccion[indiceAEliminar];
+    const semestreAnterior = nuevaProyeccion[indiceAEliminar - 1];
+
+    const codigoCapstone = semestreAEliminar.asignaturas.find((cod: string) => {
+      const asig = progreso.find((a) => a.codigo === cod);
+      return asig && esCapstone(asig);
+    });
+
+    if (codigoCapstone && semestreAnterior) {
+       const asigCapstone = progreso.find(a => a.codigo === codigoCapstone);
+       semestreAnterior.asignaturas.push(codigoCapstone);
+       semestreAnterior.creditos += (asigCapstone?.creditos || 0);
+    }
+
+    setProyeccionManual(nuevaProyeccion.filter((s: SemestreProyectado) => s.numero !== numero));
   };
 
-  // Cargar proyecciones guardadas
+  // ... (Tus funciones de cargar, guardar, etc. siguen aquí abajo. 
+  // No cambiaron la lógica, solo asegúrate de cerrar el componente correctamente)
+
   const recargarProyecciones = async () => {
     if (!usuario || !carreraSeleccionada) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const proyecciones = await proyeccionService.obtenerProyecciones(
         usuario.rut,
         carreraSeleccionada.codigo
       );
-      
-      // Convertir el formato del backend al formato esperado
       const proyeccionesConvertidas: ProyeccionGuardada[] = proyecciones.map(p => ({
         ...p,
         semesters: p.semesters.map(sem => ({
@@ -190,7 +278,6 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
           creditos: sem.courses.reduce((sum, c) => sum + c.credits, 0)
         }))
       }));
-      
       setProyeccionesGuardadas(proyeccionesConvertidas);
     } catch (err) {
       console.error('Error al cargar proyecciones:', err);
@@ -200,24 +287,21 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Cargar una proyección específica
   const cargarProyeccion = async (id: number) => {
     setLoading(true);
     setError(null);
-
     try {
       const proyeccion = await proyeccionService.obtenerProyeccion(id);
-      
-      // Convertir formato del backend al formato del frontend
       const semestres: SemestreProyectado[] = proyeccion.semesters.map(sem => ({
         numero: sem.numero,
         asignaturas: sem.courses.map(c => c.courseApiId),
         creditos: sem.courses.reduce((sum, c) => sum + c.credits, 0)
       }));
 
-      setProyeccionManual(semestres);
+      // AL CARGAR TAMBIÉN USAMOS COPIA PARA EVITAR PROBLEMAS
+      const copiaManual = JSON.parse(JSON.stringify(semestres));
+      setProyeccionManual(copiaManual);
       
-      // Convertir y guardar la proyección seleccionada
       const proyeccionConvertida: ProyeccionGuardada = {
         ...proyeccion,
         semesters: proyeccion.semesters.map(sem => ({
@@ -226,7 +310,6 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
           creditos: sem.courses.reduce((sum, c) => sum + c.credits, 0)
         }))
       };
-      
       setProyeccionSeleccionada(proyeccionConvertida);
     } catch (err) {
       console.error('Error al cargar proyección:', err);
@@ -236,83 +319,17 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const removerAsignaturaDeSemestre = (
-  codigoAsignatura: string,
-  semestreOrigen: number
-): { exito: boolean; mensaje?: string } => {
-  const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
-  if (!asignatura) {
-    return { exito: false, mensaje: 'Asignatura no encontrada' };
-  }
-
-  const nuevaProyeccion = [...proyeccionManual];
-  const semOrigen = nuevaProyeccion.find(s => s.numero === semestreOrigen);
-  
-  if (!semOrigen) {
-    return { exito: false, mensaje: 'Semestre no encontrado' };
-  }
-
-  // Remover la asignatura
-  semOrigen.asignaturas = semOrigen.asignaturas.filter(c => c !== codigoAsignatura);
-  semOrigen.creditos -= asignatura.creditos;
-
-  setProyeccionManual(nuevaProyeccion);
-  return { exito: true };
-};
-
-// Agregar asignatura a un semestre (desde el cajón)
-const agregarAsignaturaASemestre = (
-  codigoAsignatura: string,
-  semestreDestino: number
-): { exito: boolean; mensaje?: string } => {
-  const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
-  if (!asignatura) {
-    return { exito: false, mensaje: 'Asignatura no encontrada' };
-  }
-
-  const nuevaProyeccion = [...proyeccionManual];
-  const semDestino = nuevaProyeccion.find(s => s.numero === semestreDestino);
-  
-  if (!semDestino) {
-    return { exito: false, mensaje: 'Semestre no encontrado' };
-  }
-
-  // Validar si se puede agregar
-  const validacion = puedeAgregarAsignatura(
-    codigoAsignatura,
-    semDestino,
-    progreso,
-    nuevaProyeccion,
-    semestreDestino
-  );
-
-  if (!validacion.valido) {
-    return { exito: false, mensaje: validacion.razon };
-  }
-
-  // Agregar la asignatura
-  semDestino.asignaturas.push(codigoAsignatura);
-  semDestino.creditos += asignatura.creditos;
-
-  setProyeccionManual(nuevaProyeccion);
-  return { exito: true };
-};
-
-  // Guardar proyección
   const guardarProyeccion = async (nombre: string, esFavorita: boolean, esAutomatica: boolean) => {
     if (!usuario || !carreraSeleccionada) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const proyeccionAGuardar = esAutomatica ? proyeccionAutomatica : proyeccionManual;
       
-     const semesters = proyeccionAGuardar.map(sem => ({
+      const semesters = proyeccionAGuardar.map(sem => ({
         numero: sem.numero,
         courses: sem.asignaturas.map(codigo => {
           const asig = progreso.find(a => a.codigo === codigo);
-          
           return {
             courseApiId: codigo,
             nombre: asig?.asignatura || codigo, 
@@ -326,8 +343,6 @@ const agregarAsignaturaASemestre = (
         careerCode: carreraSeleccionada.codigo,
         catalogCode: carreraSeleccionada.catalogo,
         name: nombre,
-        studentName: undefined, 
-        studentEmail: undefined, 
         isFavorite: esFavorita,
         isAutomatic: esAutomatica,
         semesters
@@ -344,17 +359,12 @@ const agregarAsignaturaASemestre = (
     }
   };
 
-  
-
-  // Eliminar proyección
   const eliminarProyeccionGuardada = async (id: number) => {
     setLoading(true);
     setError(null);
-
     try {
       await proyeccionService.eliminarProyeccion(id);
       await recargarProyecciones();
-      
       if (proyeccionSeleccionada?.id === id) {
         setProyeccionSeleccionada(null);
       }
@@ -366,11 +376,9 @@ const agregarAsignaturaASemestre = (
     }
   };
 
-  // Marcar como favorita
   const marcarFavorita = async (id: number) => {
     setLoading(true);
     setError(null);
-
     try {
       await proyeccionService.marcarComoFavorita(id);
       await recargarProyecciones();
@@ -382,27 +390,21 @@ const agregarAsignaturaASemestre = (
     }
   };
 
-  // Calcular automática cuando cambie el progreso
   useEffect(() => {
     if (progreso.length > 0 && carreraSeleccionada) {
       calcularAutomatica();
     }
   }, [progreso, carreraSeleccionada]);
 
-  // CRÍTICO: Limpiar proyecciones cuando cambia la carrera
   useEffect(() => {
     if (usuario && carreraSeleccionada) {
-      // Limpiar estados antes de cargar nueva carrera
       setProyeccionManual([]);
       setProyeccionAutomatica([]);
       setProyeccionSeleccionada(null);
-      
-      // Cargar proyecciones de la nueva carrera
       recargarProyecciones();
     }
-  }, [usuario, carreraSeleccionada?.codigo]); // Depender del código específico
+  }, [usuario, carreraSeleccionada?.codigo]);
 
-  // Limpiar cuando se cierra sesión
   useEffect(() => {
     if (!usuario) {
       setProyeccionAutomatica([]);
@@ -421,8 +423,8 @@ const agregarAsignaturaASemestre = (
         proyeccionManual,
         setProyeccionManual,
         moverAsignatura,
-        removerAsignaturaDeSemestre,  // ← AGREGAR
-      agregarAsignaturaASemestre,
+        removerAsignaturaDeSemestre,
+        agregarAsignaturaASemestre,
         agregarSemestre,
         eliminarSemestre,
         proyeccionesGuardadas,

@@ -6,6 +6,7 @@ import { AsignaturaDraggableCard } from './AsignaturaDraggableCard';
 export function ProyeccionManualView() {
   const { 
     proyeccionManual, 
+    proyeccionAutomatica,
     calcularAutomatica, 
     moverAsignatura,
     removerAsignaturaDeSemestre,
@@ -235,7 +236,11 @@ export function ProyeccionManualView() {
                 asignaturas={semestre.asignaturas}
                 creditos={semestre.creditos}
                 onDrop={handleDrop}
-                onEliminar={() => eliminarSemestre(semestre.numero)}
+                onEliminar={
+                  semestre.numero > proyeccionAutomatica.length 
+                    ? () => eliminarSemestre(semestre.numero) 
+                    : undefined
+                }
                 isDraggable={true}
                 esManual={true}
               />
