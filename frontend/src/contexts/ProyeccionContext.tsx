@@ -44,6 +44,14 @@ type ProyeccionContextType = {
     semestreOrigen: number,
     semestreDestino: number
   ) => { exito: boolean; mensaje?: string };
+  removerAsignaturaDeSemestre: (    
+    codigoAsignatura: string,
+    semestreOrigen: number
+  ) => { exito: boolean; mensaje?: string };
+  agregarAsignaturaASemestre: (     
+    codigoAsignatura: string,
+    semestreDestino: number
+  ) => { exito: boolean; mensaje?: string };
   agregarSemestre: () => void;
   eliminarSemestre: (numero: number) => void;
   
@@ -85,6 +93,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     if (proyeccionManual.length === 0) {
       setProyeccionManual(proyeccion);
     }
+    setProyeccionManual(proyeccion);
   };
 
   // Mover asignatura en proyección manual
@@ -227,6 +236,68 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const removerAsignaturaDeSemestre = (
+  codigoAsignatura: string,
+  semestreOrigen: number
+): { exito: boolean; mensaje?: string } => {
+  const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
+  if (!asignatura) {
+    return { exito: false, mensaje: 'Asignatura no encontrada' };
+  }
+
+  const nuevaProyeccion = [...proyeccionManual];
+  const semOrigen = nuevaProyeccion.find(s => s.numero === semestreOrigen);
+  
+  if (!semOrigen) {
+    return { exito: false, mensaje: 'Semestre no encontrado' };
+  }
+
+  // Remover la asignatura
+  semOrigen.asignaturas = semOrigen.asignaturas.filter(c => c !== codigoAsignatura);
+  semOrigen.creditos -= asignatura.creditos;
+
+  setProyeccionManual(nuevaProyeccion);
+  return { exito: true };
+};
+
+// Agregar asignatura a un semestre (desde el cajón)
+const agregarAsignaturaASemestre = (
+  codigoAsignatura: string,
+  semestreDestino: number
+): { exito: boolean; mensaje?: string } => {
+  const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
+  if (!asignatura) {
+    return { exito: false, mensaje: 'Asignatura no encontrada' };
+  }
+
+  const nuevaProyeccion = [...proyeccionManual];
+  const semDestino = nuevaProyeccion.find(s => s.numero === semestreDestino);
+  
+  if (!semDestino) {
+    return { exito: false, mensaje: 'Semestre no encontrado' };
+  }
+
+  // Validar si se puede agregar
+  const validacion = puedeAgregarAsignatura(
+    codigoAsignatura,
+    semDestino,
+    progreso,
+    nuevaProyeccion,
+    semestreDestino
+  );
+
+  if (!validacion.valido) {
+    return { exito: false, mensaje: validacion.razon };
+  }
+
+  // Agregar la asignatura
+  semDestino.asignaturas.push(codigoAsignatura);
+  semDestino.creditos += asignatura.creditos;
+
+  setProyeccionManual(nuevaProyeccion);
+  return { exito: true };
+};
+
   // Guardar proyección
   const guardarProyeccion = async (nombre: string, esFavorita: boolean, esAutomatica: boolean) => {
     if (!usuario || !carreraSeleccionada) return;
@@ -272,6 +343,8 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   };
+
+  
 
   // Eliminar proyección
   const eliminarProyeccionGuardada = async (id: number) => {
@@ -348,6 +421,8 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
         proyeccionManual,
         setProyeccionManual,
         moverAsignatura,
+        removerAsignaturaDeSemestre,  // ← AGREGAR
+      agregarAsignaturaASemestre,
         agregarSemestre,
         eliminarSemestre,
         proyeccionesGuardadas,
