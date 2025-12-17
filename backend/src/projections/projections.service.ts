@@ -377,7 +377,7 @@ export class ProjectionsService {
           courseApiId: 'desc', // Los más pedidos primero
         },              
       },
-      take: 10,
+      // take: 10,
     });
 
     return stats.map((item) => ({

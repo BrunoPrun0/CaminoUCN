@@ -24,37 +24,37 @@ export class ProjectionsController {
     @Query('rut') rut: string,
     @Query('careerCode') careerCode: string,
   ) {
-    console.log('📥 Obteniendo proyecciones para:', { rut, careerCode });
+    console.log('Obteniendo proyecciones para:', { rut, careerCode });
     return this.projectionsService.obtenerProyecciones(rut, careerCode);
   }
 
   @Get(':id')
   async obtenerProyeccion(@Param('id', ParseIntPipe) id: number) {
-    console.log('📥 Obteniendo proyección:', id);
+    console.log('Obteniendo proyección:', id);
     return this.projectionsService.obtenerProyeccion(id);
   }
 
   @Post()
   async crearProyeccion(@Body() dto: CrearProyeccionDto) {
-    console.log('📥 Creando proyección:', dto.name);
+    console.log('Creando proyección:', dto.name);
     return this.projectionsService.crearProyeccion(dto);
   }
 
   @Put()
   async actualizarProyeccion(@Body() dto: ActualizarProyeccionDto) {
-    console.log('📥 Actualizando proyección:', dto.id);
+    console.log('Actualizando proyección:', dto.id);
     return this.projectionsService.actualizarProyeccion(dto);
   }
 
   @Delete(':id')
   async eliminarProyeccion(@Param('id', ParseIntPipe) id: number) {
-    console.log('📥 Eliminando proyección:', id);
+    console.log('Eliminando proyección:', id);
     return this.projectionsService.eliminarProyeccion(id);
   }
 
   @Put(':id/favorita')
   async marcarComoFavorita(@Param('id', ParseIntPipe) id: number) {
-    console.log('📥 Marcando como favorita:', id);
+    console.log('Marcando como favorita:', id);
     return this.projectionsService.marcarComoFavorita(id);
   }
 
