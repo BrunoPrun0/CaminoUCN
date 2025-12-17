@@ -30,12 +30,12 @@ export function ProyeccionManualView() {
   const handleDrop = (codigoAsignatura: string, semestreOrigen: number, semestreDestino: number) => {
     if (semestreOrigen === semestreDestino) return;
 
-    // Si viene del cajón (semestreOrigen === -1)
+    
     if (semestreOrigen === -1) {
       const resultado = agregarAsignaturaASemestre(codigoAsignatura, semestreDestino);
       
       if (resultado.exito) {
-        // Remover del cajón
+        // Quitar del cajón
         setCajon(cajon.filter(c => c !== codigoAsignatura));
       } else {
         setErrorMensaje(resultado.mensaje || 'No se pudo mover la asignatura');
@@ -60,13 +60,13 @@ export function ProyeccionManualView() {
     
     if (!codigoAsignatura || isNaN(semestreOrigen)) return;
     
-    // Si viene del cajón mismo, no hacer nada
+   
     if (semestreOrigen === -1) return;
     
-    // Si ya está en el cajón, no hacer nada
+    
     if (cajon.includes(codigoAsignatura)) return;
 
-    // Remover del semestre origen
+   
     const resultado = removerAsignaturaDeSemestre(codigoAsignatura, semestreOrigen);
     
     if (resultado.exito) {

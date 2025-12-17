@@ -5,11 +5,7 @@ import { useMalla } from './MallaContext';
 import { calcularProyeccionAutomatica, puedeAgregarAsignatura, puedeEliminarSemestre } from '../utils/proyeccionAutomatica';
 import * as proyeccionService from '../services/proyeccionesService';
 
-// ... (Tus types Asignatura, SemestreProyectado, etc. se mantienen igual, no los borres si están en otro archivo, 
-// si están aquí arriba, déjalos igual).
 
-// SI TIENES LOS TYPES AQUÍ, DÉJALOS AQUÍ. SI NO, IMPORTALOS.
-// Voy a asumir que los types están definidos o importados correctamente.
 type Asignatura = {
   codigo: string;
   asignatura: string;

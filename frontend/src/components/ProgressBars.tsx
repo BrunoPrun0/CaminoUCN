@@ -19,7 +19,7 @@ export function ProgressBars({ metricas }: ProgressBarsProps) {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Avance General</h2>
       <h3 className="text-xl font-semibold text-gray-700 mb-4">Porcentaje de Avance</h3>
 
-      {/* Barra de Porcentaje por ASIGNATURAS */}
+      {/* Barra de Porcentaje por asignaturas */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-medium text-gray-700">Avance por Asignaturas</span>
@@ -36,7 +36,7 @@ export function ProgressBars({ metricas }: ProgressBarsProps) {
         </p>
       </div>
 
-      {/* Barra de Porcentaje por CRÉDITOS */}
+      {/* Barra de Porcentaje por créditos */}
       <div>
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-medium text-gray-700">Avance por Créditos</span>

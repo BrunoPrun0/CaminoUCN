@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { BarChart2, AlertCircle, CheckCircle, RefreshCw, Filter } from 'lucide-react';
-// Asegúrate de que la ruta de importación sea la correcta según tu estructura de carpetas
 import { obtenerCarrerasDashboard, obtenerEstadisticas } from '../../services/adminService';
 
 type EstadisticaRamo = {
@@ -21,7 +20,7 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 1. Cargar lista de carreras al inicio
+  //Cargar lista de carreras al inicio
   useEffect(() => {
     const cargarCarreras = async () => {
       try {

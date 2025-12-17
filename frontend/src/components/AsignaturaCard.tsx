@@ -20,12 +20,12 @@ export function AsignaturaCard({ asignatura }: AsignaturaCardProps) {
         return 'bg-green-500 text-white';
       case 'REPROBADO':
         return 'bg-red-500 text-white';
-      default: // PENDIENTE o cualquier otro
+      default: // pendiente o cualquier otro
         return 'bg-blue-500 text-white';
     }
   };
 
-  // 1. Contenido del Tooltip
+  // Contenido del Tooltip
   const tooltipContent = (
     <div className="text-left">
       <p className="font-bold mb-1 text-base">Requisitos Previos:</p>
@@ -48,7 +48,7 @@ export function AsignaturaCard({ asignatura }: AsignaturaCardProps) {
   return (
     //  tooltip
     <Tooltip content={tooltipContent}>
-      {/* contenido de la tarjeta (el 'children' del tooltip) */}
+      {/* contenido de la tarjeta */}
       <div className="w-full relative"> 
         <li className="border border-gray-200 p-3 rounded-md text-center shadow-sm transition-shadow duration-200 hover:shadow-lg bg-white">
           

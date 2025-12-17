@@ -39,7 +39,7 @@ export function MallaGrid({ asignaturasPorSemestre }: MallaGridProps) {
       
       <div 
         className="grid gap-4 mt-6" 
-        style={gridStyle} // Aplica grid-template-columns: repeat(N, 1fr);
+        style={gridStyle} 
       >
         {Object.entries(asignaturasPorSemestre).map(([nivel, asignaturas]) => (
           <div 

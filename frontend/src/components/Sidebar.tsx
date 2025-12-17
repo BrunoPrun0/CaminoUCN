@@ -30,10 +30,10 @@ export function Sidebar({
   paginaActual,
   onPageChange,
   onLogout,
-  rol // recibimos el rol
+  rol 
 }: SidebarProps) {
 
-  // decide qué menú mostrar (admin o user)
+ 
   const itemsAMostrar = rol === 'ADMIN' ? menuAdmin : menuEstudiante;
 
   return (

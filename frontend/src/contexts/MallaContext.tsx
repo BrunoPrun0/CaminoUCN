@@ -43,30 +43,30 @@ export function MallaProvider({ children }: { children: ReactNode }) {
     try {
       const data = await obtenerMalla(carrera.codigo, carrera.catalogo, usuario.rut);
       
-      // 🔍 DEBUG PASO 1: Ver estructura completa de datos
+     
       console.log('=== DEBUG INICIO ===');
-      console.log('1️⃣ Datos completos del API:', data);
-      console.log('2️⃣ ¿Tiene campo inscripciones?:', 'inscripciones' in data);
-      console.log('3️⃣ Tipo de inscripciones:', typeof data.inscripciones);
-      console.log('4️⃣ ¿Es array?:', Array.isArray(data.inscripciones));
+      console.log('Datos completos del API:', data);
+      console.log('¿Tiene campo inscripciones?:', 'inscripciones' in data);
+      console.log('Tipo de inscripciones:', typeof data.inscripciones);
+      console.log('¿Es array?:', Array.isArray(data.inscripciones));
       
       if (data.inscripciones) {
-        console.log('5️⃣ Cantidad de inscripciones:', data.inscripciones.length);
-        console.log('6️⃣ Primera inscripción (ejemplo):', data.inscripciones[0]);
-        console.log('7️⃣ Campos de la primera inscripción:', Object.keys(data.inscripciones[0] || {}));
+        console.log('Cantidad de inscripciones:', data.inscripciones.length);
+        console.log('Primera inscripción (ejemplo):', data.inscripciones[0]);
+        console.log('Campos de la primera inscripción:', Object.keys(data.inscripciones[0] || {}));
       } else {
-        console.log('❌ NO HAY CAMPO INSCRIPCIONES EN LA RESPUESTA');
+        console.log('NO HAY CAMPO INSCRIPCIONES EN LA RESPUESTA');
       }
       
       // Contar las veces que cada curso fue cursado (excluyendo los excluded)
       const conteoInscripciones: Record<string, number> = {};
       
       if (data.inscripciones && Array.isArray(data.inscripciones)) {
-        console.log('8️⃣ Procesando inscripciones...');
+        console.log('Procesando inscripciones...');
         
         data.inscripciones.forEach((inscripcion: any, index: number) => {
           // Debug cada inscripción
-          if (index < 3) { // Solo las primeras 3 para no saturar la consola
+          if (index < 3) { 
             console.log(`   Inscripción ${index}:`, {
               course: inscripcion.course,
               excluded: inscripcion.excluded,
@@ -82,10 +82,10 @@ export function MallaProvider({ children }: { children: ReactNode }) {
           }
         });
       } else {
-        console.log('❌ inscripciones NO es un array válido');
+        console.log('inscripciones NO es un array válido');
       }
       
-      console.log('9️⃣ Conteo final de inscripciones:', conteoInscripciones);
+      console.log('Conteo final de inscripciones:', conteoInscripciones);
       
       // Ver cuántas asignaturas tienen veces_cursado > 0
       const asignaturasConVarias = Object.entries(conteoInscripciones)
@@ -98,9 +98,9 @@ export function MallaProvider({ children }: { children: ReactNode }) {
       const progresoActualizado = data.progreso.map((asig: Asignatura) => {
         const veces = conteoInscripciones[asig.codigo] || 0;
         
-        // Debug para las primeras asignaturas
+        
         if (veces > 0) {
-          console.log(`   ✅ ${asig.codigo} (${asig.asignatura}): ${veces} veces`);
+          console.log(`  ${asig.codigo} (${asig.asignatura}): ${veces} veces`);
         }
         
         return {
@@ -129,7 +129,7 @@ export function MallaProvider({ children }: { children: ReactNode }) {
 
       setAsignaturasPorSemestre(agrupadas);
     } catch (err) {
-      console.error('❌ Error al obtener progreso:', err);
+      console.error('Error al obtener progreso:', err);
       setError('Error al cargar la malla curricular');
     } finally {
       setLoading(false);

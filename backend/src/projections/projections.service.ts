@@ -362,25 +362,24 @@ export class ProjectionsService {
 
 //para demanda (solo admi)
 async obtenerCarrerasActivas() {
-    // Buscamos códigos Y NOMBRES distintos
+    // Buscamos códigos Y nombres distintos
     const carreras = await this.prisma.projection.findMany({
       where: { isFavorite: true },
       distinct: ['careerCode'],
       orderBy: { createdAt: 'desc' }, // Agrupamos por código
       select: { 
         careerCode: true,
-        careerName: true // <--- ¡Ahora leemos el nombre de la BD!
+        careerName: true 
       },
     });
 
     return carreras.map((c) => ({
       codigo: c.careerCode,
-      // Si por alguna razón el nombre es null (proyecciones viejas), usamos el código
       nombre: c.careerName || 'Nombre no disponible', 
     }));
   }
 
-  // 2. ESTADÍSTICAS DASHBOARD (Corregido Semestre 1 + Nombres Reales)
+ 
   async obtenerEstadisticasDashboard(careerCode?: string) {
     const filtro: any = { isFavorite: true };
 
@@ -388,12 +387,11 @@ async obtenerCarrerasActivas() {
       filtro.careerCode = careerCode;
     }
 
-    // PASO 1: Contar usando SOLO el código (para evitar duplicados por nombres mal escritos)
-    // Y filtramos ESTRICTAMENTE por semesterNumber: 1
+    // filtrar por semnestre 1 (próximo)
     const conteo = await this.prisma.projectionCourse.groupBy({
       by: ['courseApiId'],
       where: {
-        semesterNumber: 1, // <--- ESTO ARREGLA QUE NO SALGAN RAMOS DE OTROS SEMESTRES
+        semesterNumber: 1, 
         projection: filtro,
       },
       _count: { courseApiId: true },
@@ -405,7 +403,7 @@ async obtenerCarrerasActivas() {
 
     if (conteo.length === 0) return [];
 
-    // PASO 2: Obtener los nombres reales de esos códigos desde la BD
+    
     const codigos = conteo.map(c => c.courseApiId);
     
     const nombresReales = await this.prisma.projectionCourse.findMany({
@@ -417,7 +415,7 @@ async obtenerCarrerasActivas() {
       select: { courseApiId: true, courseName: true }
     });
 
-    // PASO 3: Unir el conteo con el nombre encontrado
+    
     return conteo.map((item) => {
       const infoNombre = nombresReales.find(n => n.courseApiId === item.courseApiId);
       

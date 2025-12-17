@@ -29,7 +29,7 @@ describe('ProjectionsService', () => {
               updateMany: jest.fn(),
             },
             projectionCourse: {
-              deleteMany: jest.fn(), // Added this for actualizarProyeccion
+              deleteMany: jest.fn(), 
             },
           },
         },

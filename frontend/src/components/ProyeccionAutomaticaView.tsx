@@ -23,7 +23,7 @@ export function ProyeccionAutomaticaView() {
       setShowSaveModal(false);
       setTimeout(() => setMensajeExito(null), 3000);
     } catch (error: any) {
-      alert(error.message || 'Error al guardar la proyección');
+      alert('Error al guardar la proyección');
     } finally {
       setGuardando(false);
     }
