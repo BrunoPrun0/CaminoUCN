@@ -190,7 +190,7 @@ export function ProyeccionesPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleCargarProyeccion(proyeccion.id)}
-                              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1"
+                              className="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1"
                             >
                               <i className="fi fi-rr-folder-open"></i>
                               Cargar

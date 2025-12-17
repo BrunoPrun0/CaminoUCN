@@ -70,7 +70,7 @@ export function AsignaturaCard({ asignatura }: AsignaturaCardProps) {
           {/* Veces cursado */}
           {asignatura.veces_cursado > 0 && (
             <div className={`text-xs font-semibold mt-1 ${
-              asignatura.veces_cursado > 1 ? 'text-orange-600' : 'text-gray-500'
+              asignatura.veces_cursado > 1 ? 'text-red-600' : 'text-gray-500'
             }`}>
               {asignatura.veces_cursado === 1 
                 ? '1 vez cursada' 

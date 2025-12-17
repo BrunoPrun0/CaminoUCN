@@ -20,7 +20,7 @@ export function AsignaturaDraggableCard({
   // Si no se encuentra la asignatura, podría ser de otra carrera
   if (!asignatura) {
     return (
-      <div className="border-2 border-orange-300 bg-orange-50 p-2 rounded text-xs">
+      <div className="border-2 border-red-500 bg-red-500 p-2 rounded text-xs">
         <div className="font-semibold text-orange-700 mb-1">
           ⚠️ {codigoAsignatura}
         </div>
@@ -63,7 +63,7 @@ export function AsignaturaDraggableCard({
         border border-gray-200 p-2 rounded-md text-center shadow-sm 
         relative bg-white transition-all
         ${isDraggable ? 'cursor-move hover:shadow-md hover:scale-105' : 'cursor-default'}
-        ${asignatura.veces_cursado >= 3 ? 'border-2 border-orange-500' : ''}
+        ${asignatura.veces_cursado >= 3 ? 'border-2 border-red-500' : ''}
       `}
     >
       {/* Código de la asignatura */}
@@ -103,8 +103,8 @@ export function AsignaturaDraggableCard({
 
       {/* Indicador de prerequisitos obligatorios (3+ intentos) */}
       {asignatura.veces_cursado >= 3 && (
-        <div className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-xs py-0.5 rounded-b-md font-bold">
-          ⚠️ PRIORIDAD
+        <div className="absolute bottom-0 left-0 right-0 bg-red-500 text-white text-xs py-0.5 rounded-sm font-bold">
+          PRIORIDAD
         </div>
       )}
     </div>
