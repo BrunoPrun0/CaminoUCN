@@ -44,7 +44,6 @@ export function ProyeccionAutomaticaView() {
   if (proyeccionAutomatica.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">🎓</div>
         <h3 className="text-xl font-bold text-gray-800 mb-2">
           ¡Felicidades! Ya completaste todas las asignaturas
         </h3>

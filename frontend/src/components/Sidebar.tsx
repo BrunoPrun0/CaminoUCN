@@ -4,7 +4,7 @@ type MenuItem = {
   icon: string;
 };
 
-// 1. Agregamos 'rol' a las props (opcional para que no rompa si no llega)
+// agregamos rol a las props
 type SidebarProps = {
   paginaActual: string;
   onPageChange: (page: string) => void;
@@ -12,7 +12,7 @@ type SidebarProps = {
   rol?: 'ADMIN' | 'STUDENT'; 
 };
 
-// 2. Definimos el menú normal (Estudiante)
+// menú normal (Estudiante)
 const menuEstudiante: MenuItem[] = [
   { key: "inicio", label: "Inicio", icon: "fi fi-rr-home" },
   { key: "malla", label: "Mi Malla", icon: "fi fi-rr-ballot" },
@@ -20,9 +20,8 @@ const menuEstudiante: MenuItem[] = [
   { key: "perfil", label: "Perfil", icon: "fi fi-rr-user-graduate" },
 ];
 
-// 3. Definimos el menú nuevo (Admin)
+// menú nuevo (Admin)
 const menuAdmin: MenuItem[] = [
-  // Usamos iconos similares. Si no tienes 'stats', reutiliza 'chart-histogram'
   { key: "dashboard", label: "Estadisticas", icon: "fi fi-rr-stats" }, 
   { key: "perfil", label: "Mi Perfil", icon: "fi fi-rr-user" },
 ];
@@ -31,10 +30,10 @@ export function Sidebar({
   paginaActual,
   onPageChange,
   onLogout,
-  rol // 4. Recibimos el rol
+  rol // recibimos el rol
 }: SidebarProps) {
 
-  // 5. Lógica de selección: ¿Qué lista mostramos?
+  // decide qué menú mostrar (admin o user)
   const itemsAMostrar = rol === 'ADMIN' ? menuAdmin : menuEstudiante;
 
   return (
@@ -43,7 +42,6 @@ export function Sidebar({
       <div className="p-4 border-b border-gray-700">
         <div className="flex items-center space-x-3">
           <span className="text-2xl">
-            {/* Opcional: Cambiar icono si es admin */}
           🏞
           </span>
           <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xl font-bold whitespace-nowrap">
@@ -52,7 +50,7 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Items del Menú (Dinamicos) */}
+      {/* Items del Menú */}
       <ul className="space-y-2 p-4">
         {itemsAMostrar.map((item) => (
           <li key={item.key}>

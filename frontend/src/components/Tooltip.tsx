@@ -7,12 +7,11 @@ interface TooltipProps {
 
 export const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
   return (
-    // Usa 'group' para habilitar 'group-hover' en los estilos internos
     <div className="group relative flex"> 
       
       {children}
       
-      {/* Contenido del Tooltip - Se oculta/muestra con group-hover */}
+      {/* Contenido del Tooltip */}
       <div 
         className="absolute bottom-full left-1/2 mb-2 z-50 
                   transform -translate-x-1/2 

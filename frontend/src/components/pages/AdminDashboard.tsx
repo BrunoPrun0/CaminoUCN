@@ -18,7 +18,6 @@ export const AdminDashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      // AJUSTA EL PUERTO SI ES NECESARIO (3000, 3001, etc.)
       const response = await fetch('http://localhost:3000/projections/dashboard/stats');
       
       if (!response.ok) {
@@ -40,9 +39,9 @@ export const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  // Lógica visual: Colores según demanda
+  // colores según demanda
   const getBarColor = (cantidad: number) => {
-    if (cantidad >= 10) return 'bg-red-500';     // Alta demanda (ajusta este número a tu realidad)
+    if (cantidad >= 10) return 'bg-red-500';     // Alta demanda 
     if (cantidad >= 5) return 'bg-yellow-500';   // Media demanda
     return 'bg-blue-500';                        // Baja demanda
   };
@@ -133,7 +132,7 @@ export const AdminDashboard = () => {
                   {ramo.nombre}
                 </div>
 
-                {/* 3. Barra de Progreso (Solo visible en pantallas medianas hacia arriba) */}
+                {/* 3. Barra de Progreso */}
                 <div className="hidden md:block col-span-5 pr-8">
                   <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                     <div 
@@ -146,7 +145,6 @@ export const AdminDashboard = () => {
                 {/* 4. Cantidad Numérica */}
                 <div className="col-span-4 md:col-span-2 flex justify-end items-center gap-2">
                   <span className="text-lg font-bold text-gray-700">{ramo.interesados}</span>
-                  {/* Icono de estado pequeño */}
                   {ramo.interesados >= 10 ? (
                     <AlertCircle size={16} className="text-red-500" />
                   ) : (
