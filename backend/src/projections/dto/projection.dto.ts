@@ -45,6 +45,10 @@ export class CrearProyeccionDto {
   careerCode: string;
 
   @IsString()
+  @IsOptional()
+  careerName?: string;
+
+  @IsString()
   @IsNotEmpty()
   catalogCode: string;
 

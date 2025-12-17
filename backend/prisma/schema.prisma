@@ -26,6 +26,7 @@ model Projection {
   id            Int      @id @default(autoincrement())
   studentId     Int
   careerCode    String   // Código de la carrera 
+  careerName   String?
   catalogCode   String   // Código del catálogo 
   name          String   // Nombre de la proyección 
   isFavorite    Boolean  @default(false)

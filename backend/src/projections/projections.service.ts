@@ -20,7 +20,7 @@ export class ProjectionsService {
       include: {
         projections: {
           where: {
-            careerCode: careerCode, // Filtrar por carrera específica
+            careerCode: careerCode,
           },
           include: {
             courses: {
@@ -37,10 +37,10 @@ export class ProjectionsService {
     });
 
     if (!student) {
-      return []; // No tiene proyecciones guardadas
+      return []; 
     }
 
-    // Transformar a formato esperado por el frontend
+    
     return student.projections.map((proj) => {
       // Agrupar cursos por semestre
       const semesterMap = new Map<number, any[]>();
@@ -134,6 +134,7 @@ export class ProjectionsService {
         rut: dto.rut,
         careerCode: dto.careerCode,
         catalogCode: dto.catalogCode,
+        careerName: dto.careerName,    
         name: dto.name,
         cantidadSemestres: dto.semesters.length,
         totalCursos: dto.semesters.reduce(
@@ -216,6 +217,7 @@ export class ProjectionsService {
         data: {
           studentId: student.id,
           careerCode: dto.careerCode,
+          careerName: dto.careerName,
           catalogCode: dto.catalogCode,
           name: dto.name,
           isFavorite: dto.isFavorite,
@@ -254,7 +256,7 @@ export class ProjectionsService {
       }
 
       throw new BadRequestException(
-        `Error al crear proyección: ${error.message}`,
+        `Error al crear proyección`,
       );
     }
   }
@@ -359,17 +361,22 @@ export class ProjectionsService {
   }
 
 //para demanda (solo admi)
- async obtenerCarrerasActivas() {
+async obtenerCarrerasActivas() {
+    // Buscamos códigos Y NOMBRES distintos
     const carreras = await this.prisma.projection.findMany({
       where: { isFavorite: true },
       distinct: ['careerCode'],
-      select: { careerCode: true },
+      orderBy: { createdAt: 'desc' }, // Agrupamos por código
+      select: { 
+        careerCode: true,
+        careerName: true // <--- ¡Ahora leemos el nombre de la BD!
+      },
     });
 
-    // Retornamos directamente lo que hay en la BD
     return carreras.map((c) => ({
       codigo: c.careerCode,
-      nombre: c.careerCode, // Usamos el código como nombre ya que no tienes tabla de Carreras
+      // Si por alguna razón el nombre es null (proyecciones viejas), usamos el código
+      nombre: c.careerName || 'Nombre no disponible', 
     }));
   }
 

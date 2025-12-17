@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart2, AlertCircle, CheckCircle, RefreshCw, Filter } from 'lucide-react';
+// Asegúrate de que la ruta de importación sea la correcta según tu estructura de carpetas
 import { obtenerCarrerasDashboard, obtenerEstadisticas } from '../../services/adminService';
 
 type EstadisticaRamo = {
@@ -85,7 +86,10 @@ export const AdminDashboard = () => {
           >
             <option value="general">🌍 Vista General (Todas)</option>
             {carreras.map((c) => (
-              <option key={c.codigo} value={c.codigo}>{c.nombre}</option>
+              <option key={c.codigo} value={c.codigo}>
+                {/* CAMBIO APLICADO: Mostrar Nombre (Código) */}
+                {c.nombre} ({c.codigo})
+              </option>
             ))}
           </select>
         </div>

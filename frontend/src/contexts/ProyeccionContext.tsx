@@ -320,12 +320,37 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
   };
 
   const guardarProyeccion = async (nombre: string, esFavorita: boolean, esAutomatica: boolean) => {
-    if (!usuario || !carreraSeleccionada) return;
+    // Validaciones básicas
+    if (!usuario || !carreraSeleccionada) {
+      console.error("No hay usuario o carrera seleccionada");
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
+      // 1. OBTENCIÓN ROBUSTA DEL NOMBRE DE LA CARRERA
+      // Buscamos dentro del array 'carreras' del usuario (que viene del AuthContext)
+      // Usamos String() en ambos lados para evitar errores si uno es número y otro texto ("8266" vs 8266)
+      const carreraEncontrada = usuario.carreras.find(c => 
+        String(c.codigo) === String(carreraSeleccionada.codigo)
+      );
+
+      // Si la encontramos, usamos su nombre (ej: "ITI"). Si no, usamos el código como respaldo.
+      const nombreCarreraFinal = carreraEncontrada 
+        ? carreraEncontrada.nombre 
+        : String(carreraSeleccionada.codigo);
+
+      // Debug para que veas en la consola qué se va a mandar
+      console.log("GUARDANDO PROYECCIÓN:", {
+        codigo: carreraSeleccionada.codigo,
+        nombreEncontrado: nombreCarreraFinal, // <--- Aquí debe decir "ITI" o el nombre real
+        usuarioCarreras: usuario.carreras
+      });
+
+      // Preparar semestres (tu lógica existente)
       const proyeccionAGuardar = esAutomatica ? proyeccionAutomatica : proyeccionManual;
-      
       const semesters = proyeccionAGuardar.map(sem => ({
         numero: sem.numero,
         courses: sem.asignaturas.map(codigo => {
@@ -338,9 +363,11 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
         })
       }));
 
+      // Payload para el backend
       const payload = {
         rut: usuario.rut,
-        careerCode: carreraSeleccionada.codigo,
+        careerCode: String(carreraSeleccionada.codigo), // Aseguramos string
+        careerName: nombreCarreraFinal,                 // <--- AQUÍ VA EL NOMBRE CORRECTO
         catalogCode: carreraSeleccionada.catalogo,
         name: nombre,
         isFavorite: esFavorita,
@@ -349,7 +376,10 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
       };
 
       await proyeccionService.crearProyeccion(payload);
+      
+      // Recargar proyecciones para actualizar la vista
       await recargarProyecciones();
+
     } catch (err: any) {
       console.error('Error al guardar proyección:', err);
       setError(err.message || 'Error al guardar proyección');
