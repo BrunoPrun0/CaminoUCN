@@ -29,7 +29,7 @@ describe('ProjectionsService', () => {
               updateMany: jest.fn(),
             },
             projectionCourse: {
-              deleteMany: jest.fn(), 
+              deleteMany: jest.fn(),
             },
           },
         },
@@ -154,7 +154,7 @@ describe('ProjectionsService', () => {
         email: 'juan@ucn.cl',
         careerCode: '100',
         catalogCode: '2020',
-        rol: 'STUDENT'
+        rol: 'STUDENT',
       };
 
       const mockCreatedProjection = {

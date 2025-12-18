@@ -230,7 +230,7 @@ describe('ApiExternaService', () => {
       nombre: 'Juan Pérez',
       email: 'juan@ucn.cl',
       carrera: '100',
-      rol: 'STUDENT'
+      rol: 'STUDENT',
     };
 
     it('should successfully login and return student data', async () => {

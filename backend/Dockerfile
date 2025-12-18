@@ -17,7 +17,6 @@ COPY . .
 RUN npx prisma generate
 
 # Exponer el puerto del backend
-# Exponer el puerto del backend
 EXPOSE 3000
 
 # Comando para generar Prisma y arrancar NestJS

@@ -1,10 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-
- const ADMIN_MOCK_CREDENTIALS = {
-  email: 'admin@ucn.cl',      // Pon aquí el correo de ejemplo que te dieron
-  password: 'password123'     // Pon aquí la contraseña de ejemplo
-}
+const ADMIN_MOCK_CREDENTIALS = {
+  email: 'admin@ucn.cl', // Pon aquí el correo de ejemplo que te dieron
+  password: 'password123', // Pon aquí la contraseña de ejemplo
+};
 @Injectable()
 export class ApiExternaService {
   async getProgreso(codCarrera: string, catalogo: string, rut: string) {
@@ -163,17 +162,24 @@ export class ApiExternaService {
     }
   }
 
- 
-
-async login(email: string, password: string) {
+  async login(email: string, password: string) {
     // 1. INTERCEPCIÓN (MOCK): ¿Es el usuario administrador simulado?
-    if (email === ADMIN_MOCK_CREDENTIALS.email && password === ADMIN_MOCK_CREDENTIALS.password) {
+    if (
+      email === ADMIN_MOCK_CREDENTIALS.email &&
+      password === ADMIN_MOCK_CREDENTIALS.password
+    ) {
       console.log('Iniciando sesión simulada de ADMIN');
       return {
-        rut: '99.999.999-K',      
+        rut: '99.999.999-K',
         nombre: 'Director de Carrera',
-        carreras: [{ codigo: 'ICCI', nombre: 'Ingeniería Civil en Computación', catalogo: '2020' }],
-        rol: 'ADMIN'              
+        carreras: [
+          {
+            codigo: 'ICCI',
+            nombre: 'Ingeniería Civil en Computación',
+            catalogo: '2020',
+          },
+        ],
+        rol: 'ADMIN',
       };
       return;
     }
@@ -192,9 +198,8 @@ async login(email: string, password: string) {
       // Los usuarios normales que vienen de la API son STUDENT por defecto
       return {
         ...studentData,
-        rol: 'STUDENT'
+        rol: 'STUDENT',
       };
-      
     } catch (err) {
       console.error('Error en login:', err);
 
@@ -203,5 +208,5 @@ async login(email: string, password: string) {
       }
       throw new Error('Error al conectar con la API externa');
     }
-}
+  }
 }

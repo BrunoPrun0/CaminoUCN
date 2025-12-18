@@ -37,10 +37,9 @@ export class ProjectionsService {
     });
 
     if (!student) {
-      return []; 
+      return [];
     }
 
-    
     return student.projections.map((proj) => {
       // Agrupar cursos por semestre
       const semesterMap = new Map<number, any[]>();
@@ -134,7 +133,7 @@ export class ProjectionsService {
         rut: dto.rut,
         careerCode: dto.careerCode,
         catalogCode: dto.catalogCode,
-        careerName: dto.careerName,    
+        careerName: dto.careerName,
         name: dto.name,
         cantidadSemestres: dto.semesters.length,
         totalCursos: dto.semesters.reduce(
@@ -255,9 +254,7 @@ export class ProjectionsService {
         console.error('Metadata del error:', error.meta);
       }
 
-      throw new BadRequestException(
-        `Error al crear proyección`,
-      );
+      throw new BadRequestException(`Error al crear proyección`);
     }
   }
 
@@ -360,26 +357,25 @@ export class ProjectionsService {
     });
   }
 
-//para demanda (solo admi)
-async obtenerCarrerasActivas() {
+  //para demanda (solo admi)
+  async obtenerCarrerasActivas() {
     // Buscamos códigos Y nombres distintos
     const carreras = await this.prisma.projection.findMany({
       where: { isFavorite: true },
       distinct: ['careerCode'],
       orderBy: { createdAt: 'desc' }, // Agrupamos por código
-      select: { 
+      select: {
         careerCode: true,
-        careerName: true 
+        careerName: true,
       },
     });
 
     return carreras.map((c) => ({
       codigo: c.careerCode,
-      nombre: c.careerName || 'Nombre no disponible', 
+      nombre: c.careerName || 'Nombre no disponible',
     }));
   }
 
- 
   async obtenerEstadisticasDashboard(careerCode?: string) {
     const filtro: any = { isFavorite: true };
 
@@ -391,7 +387,7 @@ async obtenerCarrerasActivas() {
     const conteo = await this.prisma.projectionCourse.groupBy({
       by: ['courseApiId'],
       where: {
-        semesterNumber: 1, 
+        semesterNumber: 1,
         projection: filtro,
       },
       _count: { courseApiId: true },
@@ -403,22 +399,22 @@ async obtenerCarrerasActivas() {
 
     if (conteo.length === 0) return [];
 
-    
-    const codigos = conteo.map(c => c.courseApiId);
-    
+    const codigos = conteo.map((c) => c.courseApiId);
+
     const nombresReales = await this.prisma.projectionCourse.findMany({
       where: {
         courseApiId: { in: codigos },
         courseName: { not: null }, // Buscamos registros que sí tengan nombre
       },
       distinct: ['courseApiId'], // Solo necesitamos un nombre por código
-      select: { courseApiId: true, courseName: true }
+      select: { courseApiId: true, courseName: true },
     });
 
-    
     return conteo.map((item) => {
-      const infoNombre = nombresReales.find(n => n.courseApiId === item.courseApiId);
-      
+      const infoNombre = nombresReales.find(
+        (n) => n.courseApiId === item.courseApiId,
+      );
+
       return {
         codigo: item.courseApiId,
         nombre: infoNombre?.courseName || item.courseApiId, // Si no hay nombre, muestra el código
@@ -427,4 +423,3 @@ async obtenerCarrerasActivas() {
     });
   }
 }
-

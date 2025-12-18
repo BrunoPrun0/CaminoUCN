@@ -48,9 +48,11 @@ describe('Ciclo de Vida Completo: CRUD de Proyecciones (E2E)', () => {
       semesters: [
         {
           numero: 1,
-          courses: [{ courseApiId: 'TEST-FULL-1', nombre: 'Test Avanzado', credits: 5 }]
-        }
-      ]
+          courses: [
+            { courseApiId: 'TEST-FULL-1', nombre: 'Test Avanzado', credits: 5 },
+          ],
+        },
+      ],
     };
 
     const response = await request(app.getHttpServer())
@@ -94,7 +96,9 @@ describe('Ciclo de Vida Completo: CRUD de Proyecciones (E2E)', () => {
       .expect(200);
 
     // Confirmamos que ya no existe en la base de datos
-    const buscar = await prisma.projection.findUnique({ where: { id: projectionId } });
+    const buscar = await prisma.projection.findUnique({
+      where: { id: projectionId },
+    });
     expect(buscar).toBeNull();
   });
 });
