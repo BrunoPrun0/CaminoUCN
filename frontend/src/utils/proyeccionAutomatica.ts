@@ -29,7 +29,7 @@ function esCapstone(asignatura: Asignatura): boolean {
 export function calcularProyeccionAutomatica(
   progreso: Asignatura[]
 ): SemestreProyectado[] {
-  const pendientes = progreso.filter((asig) => asig.estado !== 'APROBADO');
+  const pendientes = progreso.filter((asig) => asig.estado !== 'APROBADO' && asig.estado!== 'INSCRITO');
 
   if (pendientes.length === 0) {
     return [];
@@ -41,7 +41,7 @@ export function calcularProyeccionAutomatica(
 
   const aprobadas = new Set(
     progreso
-      .filter((asig) => asig.estado === 'APROBADO')
+      .filter((asig) => asig.estado === 'APROBADO' || asig.estado === 'INSCRITO')
       .map((asig) => asig.codigo)
   );
 
