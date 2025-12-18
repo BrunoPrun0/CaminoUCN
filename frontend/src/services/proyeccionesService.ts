@@ -81,7 +81,7 @@ export async function crearProyeccion(
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.message || 'Error al crear proyección');
+    throw new Error( 'Error al crear proyección');
   }
   return await res.json();
 }

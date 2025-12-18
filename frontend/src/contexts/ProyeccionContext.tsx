@@ -83,18 +83,13 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 1. CORRECCIÓN CRÍTICA AQUÍ: Separar las referencias
+  
   const calcularAutomatica = () => {
     if (progreso.length === 0) return;
     
     console.log('Calculando proyección automática...');
     const proyeccion = calcularProyeccionAutomatica(progreso);
-    
-    // Guardamos la automática
     setProyeccionAutomatica(proyeccion);
-    
-    // CORRECCIÓN: Usamos JSON parse/stringify para crear una COPIA PROFUNDA.
-    // Esto rompe el vínculo. Modificar la manual YA NO tocará la automática.
     setProyeccionManual(JSON.parse(JSON.stringify(proyeccion)));
   };
 
@@ -107,7 +102,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     const asignatura = progreso.find(a => a.codigo === codigoAsignatura);
     if (!asignatura) return { exito: false, mensaje: 'Asignatura no encontrada' };
 
-    // Copia profunda para asegurar inmutabilidad
+    
     const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
     
     const semOrigen = nuevaProyeccion.find((s: SemestreProyectado) => s.numero === semestreOrigen);
@@ -183,7 +178,6 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     return { exito: true };
   };
 
-  // 2. CORRECCIÓN: Agregar semestre seguro
   const agregarSemestre = () => {
     const nuevaProyeccion = JSON.parse(JSON.stringify(proyeccionManual));
     const ultimoSemestre = nuevaProyeccion[nuevaProyeccion.length - 1];
@@ -217,10 +211,8 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     setProyeccionManual([...nuevaProyeccion, nuevoSemestre]);
   };
 
-  // 3. CORRECCIÓN: Eliminar semestre con la lógica arreglada
   const eliminarSemestre = (numero: number) => {
-    // IMPORTANTE: Ahora que las referencias están separadas, proyeccionAutomatica.length
-    // NO cambiará cuando agregues semestres manuales. Esto arregla el botón de borrar.
+    
     if (numero <= proyeccionAutomatica.length) {
       setError('No puedes eliminar los semestres base de la proyección automática.');
       setTimeout(() => setError(null), 3000);
@@ -254,8 +246,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     setProyeccionManual(nuevaProyeccion.filter((s: SemestreProyectado) => s.numero !== numero));
   };
 
-  // ... (Tus funciones de cargar, guardar, etc. siguen aquí abajo. 
-  // No cambiaron la lógica, solo asegúrate de cerrar el componente correctamente)
+ 
 
   const recargarProyecciones = async () => {
     if (!usuario || !carreraSeleccionada) return;
@@ -294,7 +285,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
         creditos: sem.courses.reduce((sum, c) => sum + c.credits, 0)
       }));
 
-      // AL CARGAR TAMBIÉN USAMOS COPIA PARA EVITAR PROBLEMAS
+     
       const copiaManual = JSON.parse(JSON.stringify(semestres));
       setProyeccionManual(copiaManual);
       
@@ -326,26 +317,23 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // 1. OBTENCIÓN ROBUSTA DEL NOMBRE DE LA CARRERA
-      // Buscamos dentro del array 'carreras' del usuario (que viene del AuthContext)
-      // Usamos String() en ambos lados para evitar errores si uno es número y otro texto ("8266" vs 8266)
+     
       const carreraEncontrada = usuario.carreras.find(c => 
         String(c.codigo) === String(carreraSeleccionada.codigo)
       );
 
-      // Si la encontramos, usamos su nombre (ej: "ITI"). Si no, usamos el código como respaldo.
+    
       const nombreCarreraFinal = carreraEncontrada 
         ? carreraEncontrada.nombre 
         : String(carreraSeleccionada.codigo);
 
-      // Debug para que veas en la consola qué se va a mandar
+  
       console.log("GUARDANDO PROYECCIÓN:", {
         codigo: carreraSeleccionada.codigo,
-        nombreEncontrado: nombreCarreraFinal, // <--- Aquí debe decir "ITI" o el nombre real
+        nombreEncontrado: nombreCarreraFinal, 
         usuarioCarreras: usuario.carreras
       });
 
-      // Preparar semestres (tu lógica existente)
       const proyeccionAGuardar = esAutomatica ? proyeccionAutomatica : proyeccionManual;
       const semesters = proyeccionAGuardar.map(sem => ({
         numero: sem.numero,
@@ -362,8 +350,8 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
       // Payload para el backend
       const payload = {
         rut: usuario.rut,
-        careerCode: String(carreraSeleccionada.codigo), // Aseguramos string
-        careerName: nombreCarreraFinal,                 // <--- AQUÍ VA EL NOMBRE CORRECTO
+        careerCode: String(carreraSeleccionada.codigo), 
+        careerName: nombreCarreraFinal,                
         catalogCode: carreraSeleccionada.catalogo,
         name: nombre,
         isFavorite: esFavorita,
@@ -378,7 +366,7 @@ export function ProyeccionProvider({ children }: { children: ReactNode }) {
 
     } catch (err: any) {
       console.error('Error al guardar proyección:', err);
-      setError(err.message || 'Error al guardar proyección');
+      setError('Error al guardar proyección');
       throw err;
     } finally {
       setLoading(false);

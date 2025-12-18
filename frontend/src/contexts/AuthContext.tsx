@@ -1,10 +1,12 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
- type Carrera = {
+
+type Carrera = {
   codigo: string;
   nombre: string;
   catalogo: string;
 };
+
 
 type Usuario = {
   rut: string;
@@ -21,10 +23,27 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [usuario, setUsuario] = useState<Usuario | null>(() => {
+    try {
+      const item = localStorage.getItem('session_usuario');
+      return item ? JSON.parse(item) : null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  });
 
-  const login = (data: Usuario) => setUsuario(data);
-  const logout = () => setUsuario(null);
+  const login = (data: Usuario) => {
+    
+    localStorage.setItem('session_usuario', JSON.stringify(data));
+    setUsuario(data);
+  };
+
+  const logout = () => {
+   
+    localStorage.removeItem('session_usuario');
+    setUsuario(null);
+  };
 
   return (
     <AuthContext.Provider value={{ usuario, login, logout }}>

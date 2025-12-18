@@ -3,20 +3,20 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 
-// Importa tus páginas
+
 import { MallaPage } from '../components/pages/MallaPage';
 import { ProyeccionesPage } from '../components/pages/ProyeccionesPage';
 import { PerfilPage } from '../components/pages/PerfilPage';
-import { AdminDashboard } from '../components/pages/AdminDashboard'; // <--- Importa esto
+import { AdminDashboard } from '../components/pages/AdminDashboard'; 
 
 function Home() {
-  const { usuario, logout } = useAuth(); // <--- Traemos el usuario para ver el rol
+  const { usuario, logout } = useAuth(); 
   const navigate = useNavigate();
 
-  // Ampliamos los tipos para incluir 'dashboard'
+ 
   const [paginaActual, setPaginaActual] = useState<'inicio' | 'malla' | 'proyecciones' | 'perfil' | 'dashboard'>('inicio');
 
-  // Opcional: Si es admin, que empiece directo en el dashboard
+ 
   useEffect(() => {
     if (usuario?.rol === 'ADMIN' && paginaActual === 'inicio') {
       setPaginaActual('dashboard');
@@ -35,7 +35,7 @@ function Home() {
   paginaActual={paginaActual}
   onPageChange={(p) => setPaginaActual(p as any)}
   onLogout={handleLogout}
-  rol={usuario?.rol} // <--- ESTO ES LO IMPORTANTE
+  rol={usuario?.rol} 
 />
 
       {/* Contenido Principal */}
