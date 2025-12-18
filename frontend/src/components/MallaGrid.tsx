@@ -41,7 +41,7 @@ export function MallaGrid({ asignaturasPorSemestre }: MallaGridProps) {
             className="bg-white rounded p-2 md:p-4 shadow-md border border-gray-100"
           >
             <h3 className="text-xs md:text-sm font-bold text-gray-700 mb-2 text-center">
-              Sem. {toRoman(nivel)}
+              Semestre {toRoman(nivel)}
             </h3>
             <ul className="space-y-2">
               {asignaturas.map((asig) => (
