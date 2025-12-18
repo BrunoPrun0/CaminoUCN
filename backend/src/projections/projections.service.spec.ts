@@ -154,6 +154,7 @@ describe('ProjectionsService', () => {
         email: 'juan@ucn.cl',
         careerCode: '100',
         catalogCode: '2020',
+        rol: 'STUDENT'
       };
 
       const mockCreatedProjection = {
