@@ -27,7 +27,7 @@ Herramientas y tecnologías utilizadas en el desarrollo:
 * **Framework:** NestJS (Node.js + TypeScript)
 * **Base de Datos:** PostgreSQL
 * **ORM:** Prisma (Schema Management & Migrations)
-* **Testing:** Jest y Vitest
+* **Testing:** Jest, Vitest y k6
 * **Validación:** DTOs
 
 ### Frontend & UI
@@ -49,14 +49,14 @@ Herramientas y tecnologías utilizadas en el desarrollo:
 Evidencia del porcentaje de cobertura en servicios y controladores críticos (>80%).
 
 ![Reporte de Cobertura](docs/coverage-report.png)
-### 2. Ejecución de Tests
-Validación de que todos los casos de prueba unitarios pasan exitosamente.
+### 2. Test de integración
+Validación de que el test de integración cumple.
 
-![Tests Pasando](docs/test-pass.png)
-### 3. Calidad de Código (Clean Code)
-Reporte del Linter demostrando ausencia de "Deuda Técnica" (warnings/errors).
+![Tests de Integración](docs/test-pass.png)
+### 3. Test de carga
+Muestra el rendimiento del proyecto cuando es sometido a cierto estrés (20 persona)
 
-![Reporte Linter](docs/linter-clean.png)
+![Test de carga](docs/test-de-carga.png)
 ---
 
 ## Requisitos Previos de Instalación
@@ -115,6 +115,12 @@ Sigue estos pasos para levantar el proyecto completo (Backend + Frontend).
 
 2.  **Iniciar la Web:**
     ```bash
+    cd infra 
+    docker compose up --build  
+    ```
+
+    ```bash
+    cd frontend
     npm run dev  
     ```
     *El Frontend estará disponible en: `http://localhost:XXXX`*
@@ -132,6 +138,9 @@ Para auditoría de código y ejecución de pruebas automatizadas:
 | `npm run test:e2e` | Ejecuta tests de integración (End-to-End). |
 | `npm run lint` | Ejecuta el análisis estático (busca errores de estilo). |
 
+| Comando (root) | Descripción |
+| :--- | :--- |
+| `k6 run test-carga.js` | Ejecuta test de carga. |
 ---
 
 ## Documentación de la API (Backend)
