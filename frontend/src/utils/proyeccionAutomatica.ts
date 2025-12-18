@@ -210,7 +210,7 @@ export function puedeAgregarAsignatura(
     return { valido: false, razon: 'Ya aprobaste esta asignatura' };
   }
 
-  // Regla especial Capstone: DEBE ir solo en el último semestre
+  //  DEBE ir solo en el último semestre
   const esAsignaturaCapstone = esCapstone(asignatura);
   
   if (esAsignaturaCapstone) {
@@ -231,7 +231,7 @@ export function puedeAgregarAsignatura(
       return { valido: false, razon: 'El Capstone Project ya está planificado' };
     }
 
-    // REGLA CRÍTICA: Capstone debe ir completamente solo en su semestre
+    //  Capstone debe ir completamente solo en su semestre
     if (
       semestreDestino.asignaturas.length > 0 &&
       !semestreContieneCapstone
@@ -287,7 +287,7 @@ export function puedeAgregarAsignatura(
     }
   }
 
-  // Regla especial: Si el semestre tiene Capstone, no se puede agregar nada más
+  // Si el semestre tiene Capstone, no se puede agregar nada más
   const semestreContieneCapstone = semestreDestino.asignaturas.some((cod) => {
     const asig = progreso.find((a) => a.codigo === cod);
     return asig && esCapstone(asig);
@@ -411,7 +411,7 @@ export function puedeEliminarSemestre(
       };
     }
 
-    // REGLA DE ORO: El semestre anterior DEBE estar vacío para recibir el Capstone
+    // El semestre anterior DEBE estar vacío para recibir el Capstone
     if (semestreAnterior.asignaturas.length > 0) {
       return {
         valido: false,
