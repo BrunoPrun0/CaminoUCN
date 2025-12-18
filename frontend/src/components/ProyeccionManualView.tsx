@@ -44,7 +44,7 @@ export function ProyeccionManualView() {
       return;
     }
 
-    // Movimiento normal entre semestres
+    // Movimiento entre semestres
     const resultado = moverAsignatura(codigoAsignatura, semestreOrigen, semestreDestino);
     
     if (!resultado.exito) {
@@ -189,7 +189,6 @@ export function ProyeccionManualView() {
 
         {advertenciaCajon && (
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative flex items-start animate-pulse">
-            <span className="mr-2">⚠️</span>
             <span className="flex-1 font-semibold">Debes ubicar todas las asignaturas del cajón antes de guardar</span>
           </div>
         )}
@@ -214,7 +213,7 @@ export function ProyeccionManualView() {
         )}
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-bold text-blue-800 mb-2">📋 Instrucciones:</h3>
+          <h3 className="font-bold text-blue-800 mb-2">Instrucciones:</h3>
           <ul className="text-sm text-blue-700 space-y-1">
             <li>• Arrastra las asignaturas entre semestres para reorganizar tu plan</li>
             <li>• Usa el <strong>cajón temporal</strong> a la derecha para dejar asignaturas momentáneamente</li>
@@ -252,9 +251,7 @@ export function ProyeccionManualView() {
       <div className="w-80 flex-shrink-0">
         <div className="bg-white rounded-lg shadow-lg p-4 sticky top-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <span className="text-2xl">📦</span> Cajón Temporal
-            </h3>
+            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"> Cajón Temporal </h3>
             {cajon.length > 0 && (
               <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                 {cajon.length}
@@ -273,7 +270,6 @@ export function ProyeccionManualView() {
           >
             {cajon.length === 0 ? (
               <div className="text-center text-gray-400 text-sm mt-8">
-                <div className="text-4xl mb-2">📦</div>
                 <p>Cajón vacío</p>
                 <p className="text-xs mt-2">Arrastra asignaturas aquí</p>
               </div>
@@ -293,7 +289,7 @@ export function ProyeccionManualView() {
 
           {cajon.length > 0 && (
             <div className="mt-3 bg-yellow-50 border border-yellow-300 rounded p-2 text-xs text-yellow-800">
-              <strong>⚠️ Recuerda:</strong> Debes ubicar todas las asignaturas antes de guardar la proyección
+              <strong>Recuerda:</strong> Debes ubicar todas las asignaturas antes de guardar la proyección
             </div>
           )}
         </div>

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'; 
 import { loginUsuario } from '../services/apiExternaService';
 import { useAuth } from '../contexts/AuthContext';
+import fondoUCN from '../images/FondoUCN.png';
 
 function Login(){
     const { login } = useAuth();
@@ -33,7 +34,9 @@ function Login(){
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat px-4"
+            style={{ backgroundImage: `url(${fondoUCN})` }}>
+        {/* <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 px-4"> */}
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
                 {/* Header con logo */}
                 <div className="text-center mb-8">

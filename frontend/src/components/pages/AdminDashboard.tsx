@@ -33,7 +33,7 @@ export const AdminDashboard = () => {
     cargarCarreras();
   }, []);
 
-  // 2. Cargar estadísticas cuando cambia el filtro
+  // Cargar estadísticas cuando cambia el filtro
   const fetchStats = async () => {
     setLoading(true);
     setError(null);
@@ -83,10 +83,9 @@ export const AdminDashboard = () => {
             className="flex-1 max-w-md bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"
             disabled={loading}
           >
-            <option value="general">🌍 Vista General (Todas)</option>
+            <option value="general">Vista General (Todas)</option>
             {carreras.map((c) => (
               <option key={c.codigo} value={c.codigo}>
-                {/* CAMBIO APLICADO: Mostrar Nombre (Código) */}
                 {c.nombre} ({c.codigo})
               </option>
             ))}
@@ -107,7 +106,6 @@ export const AdminDashboard = () => {
         </div>
       ) : stats.length === 0 ? (
         <div className="p-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-300">
-          <div className="text-4xl mb-3">📊</div>
           <p className="text-gray-500 font-medium">Sin datos para mostrar.</p>
           <p className="text-sm text-gray-400">Nadie ha guardado proyecciones favoritas en esta categoría aún.</p>
         </div>
